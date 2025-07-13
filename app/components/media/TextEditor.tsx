@@ -32,8 +32,8 @@ export default function TextEditor() {
 
   const [textContent, setTextContent] = useState("Hello World");
   const [fontSize, setFontSize] = useState(48);
-  const [fontFamily, setFontFamily] = useState("Arial");
-  const [color, setColor] = useState("#ffffff");
+  const [fontFamily, setFontFamily] = useState("Comic Sans MS");
+  const [color, setColor] = useState("#000000");
   const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(
     "center"
   );
@@ -95,6 +95,7 @@ export default function TextEditor() {
                   onChange={(e) => setFontFamily(e.target.value)}
                   className="w-full h-8 px-2 text-sm bg-muted/50 border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                 >
+                  <option value="Comic Sans MS">Comic Sans MS</option>
                   <option value="Arial">Arial</option>
                   <option value="Helvetica">Helvetica</option>
                   <option value="Times New Roman">Times</option>

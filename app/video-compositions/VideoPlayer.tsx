@@ -75,7 +75,7 @@ export function TimelineComposition({
                       ? `${scrubber.text.fontSize}px`
                       : "48px",
                     fontFamily:
-                      scrubber.text?.fontFamily || "Arial, sans-serif",
+                      scrubber.text?.fontFamily || "Comic Sans MS, cursive, sans-serif",
                     fontWeight: scrubber.text?.fontWeight || "normal",
                     margin: 0,
                     padding: "20px",
