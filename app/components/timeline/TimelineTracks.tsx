@@ -79,7 +79,11 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
       const timelineContainer = containerRef.current;
-      if (timelineContainer && !timelineContainer.contains(e.target as Node)) {
+      const target = e.target as HTMLElement;
+      const rightPanel = target.closest('[data-panel-id="right-panel"]');
+      
+      // Don't clear selection if clicking in the right panel
+      if (timelineContainer && !timelineContainer.contains(e.target as Node) && !rightPanel) {
         onSelectScrubber(null);
       }
     };

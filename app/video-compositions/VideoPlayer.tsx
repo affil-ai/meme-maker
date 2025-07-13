@@ -59,6 +59,7 @@ export function TimelineComposition({
                 height: scrubber.height_player,
                 justifyContent: "center",
                 alignItems: "center",
+                transform: scrubber.rotation ? `rotate(${scrubber.rotation}deg)` : undefined,
               }}
             >
               <div
@@ -97,6 +98,7 @@ export function TimelineComposition({
                 top: scrubber.top_player,
                 width: scrubber.width_player,
                 height: scrubber.height_player,
+                transform: scrubber.rotation ? `rotate(${scrubber.rotation}deg)` : undefined,
               }}
             >
               <Img src={imageUrl!} />
@@ -115,9 +117,15 @@ export function TimelineComposition({
                 top: scrubber.top_player,
                 width: scrubber.width_player,
                 height: scrubber.height_player,
+                transform: scrubber.rotation ? `rotate(${scrubber.rotation}deg)` : undefined,
               }}
             >
-              <Video src={videoUrl!} trimBefore={scrubber.trimBefore || undefined} trimAfter={scrubber.trimAfter || undefined} />
+              <Video 
+                src={videoUrl!} 
+                trimBefore={scrubber.trimBefore || undefined} 
+                trimAfter={scrubber.trimAfter || undefined}
+                playbackRate={scrubber.playbackSpeed || 1}
+              />
             </AbsoluteFill>
           );
           break;

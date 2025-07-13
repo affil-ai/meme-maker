@@ -45,6 +45,20 @@ export interface ScrubberState extends MediaBinItem {
   // for video scrubbers (and audio in the future)
   trimBefore: number | null; // in frames
   trimAfter: number | null; // in frames
+
+  // Transform properties
+  rotation?: number; // rotation in degrees
+  
+  // Playback properties
+  playbackSpeed?: number; // playback speed multiplier (0.25 to 4)
+
+  // Text properties (for easier access)
+  textContent?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  color?: string;
+  textAlign?: "left" | "center" | "right";
+  fontWeight?: "normal" | "bold";
 }
 
 // state of the track in the timeline
@@ -75,6 +89,12 @@ export interface TimelineDataItem {
     // for video scrubbers (and audio in the future)
     trimBefore: number | null; // in frames
     trimAfter: number | null; // in frames
+
+    // Transform properties
+    rotation?: number; // rotation in degrees
+    
+    // Playback properties
+    playbackSpeed?: number; // playback speed multiplier (0.25 to 4)
   })[];
 }
 

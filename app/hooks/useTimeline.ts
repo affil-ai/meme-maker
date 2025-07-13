@@ -146,6 +146,10 @@ export const useTimeline = () => {
             // for video scrubbers (and audio in the future)
             trimBefore: scrubber.trimBefore,
             trimAfter: scrubber.trimAfter,
+
+            // Transform and playback properties
+            rotation: scrubber.rotation,
+            playbackSpeed: scrubber.playbackSpeed,
           }))
         ),
       },
@@ -346,6 +350,8 @@ export const useTimeline = () => {
           is_dragging: false,
           uploadProgress: item.uploadProgress,
           isUploading: item.isUploading,
+          trimBefore: null,
+          trimAfter: null,
         };
         
         // Add the scrubber to the last new track

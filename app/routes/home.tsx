@@ -19,6 +19,7 @@ import { useTheme } from "next-themes";
 
 // Components
 import LeftPanel from "~/components/editor/LeftPanel";
+import RightPanel from "~/components/editor/RightPanel";
 import { VideoPlayer } from "~/video-compositions/VideoPlayer";
 import { RenderStatus } from "~/components/timeline/RenderStatus";
 import { TimelineRuler } from "~/components/timeline/TimelineRuler";
@@ -43,7 +44,7 @@ import { useRuler } from "~/hooks/useRuler";
 import { useRenderer } from "~/hooks/useRenderer";
 
 // Types and constants
-import { FPS } from "~/components/timeline/types";
+import { FPS, type ScrubberState } from "~/components/timeline/types";
 import { useNavigate } from "react-router";
 
 
@@ -70,6 +71,19 @@ export default function TimelineEditor() {
 
   // video player media selection state
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
+  // Synchronize canvas and timeline selection
+  useEffect(() => {
+    if (selectedItem !== selectedScrubberId) {
+      setSelectedScrubberId(selectedItem);
+    }
+  }, [selectedItem]);
+
+  useEffect(() => {
+    if (selectedScrubberId !== selectedItem) {
+      setSelectedItem(selectedScrubberId);
+    }
+  }, [selectedScrubberId]);
 
   // Custom hooks
   const {
@@ -119,6 +133,14 @@ export default function TimelineEditor() {
 
   // Derived values
   const timelineData = getTimelineData();
+
+  // Handle partial scrubber updates
+  const handlePartialUpdateScrubber = useCallback((id: string, updates: Partial<ScrubberState>) => {
+    const scrubber = getAllScrubbers().find(s => s.id === id);
+    if (scrubber) {
+      handleUpdateScrubber({ ...scrubber, ...updates });
+    }
+  }, [getAllScrubbers, handleUpdateScrubber]);
   const durationInFrames = (() => {
     let maxEndTime = 0;
     timelineData.forEach((timelineItem) => {
@@ -373,7 +395,12 @@ export default function TimelineEditor() {
       if (e.button !== 0) {
         return;
       }
-      setSelectedItem(null);
+      // Don't clear selection if clicking in the right panel
+      const target = e.target as HTMLElement;
+      const rightPanel = target.closest('[data-panel-id="right-panel"]');
+      if (!rightPanel) {
+        setSelectedItem(null);
+      }
     }}>
       {/* Ultra-minimal Top Bar */}
       <header className="h-9 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-3 shrink-0">
@@ -443,7 +470,7 @@ export default function TimelineEditor() {
         <ResizableHandle withHandle />
 
         {/* Main Content Area */}
-        <ResizablePanel defaultSize={80}>
+        <ResizablePanel defaultSize={60}>
           <ResizablePanelGroup direction="vertical">
             {/* Preview Area */}
             <ResizablePanel defaultSize={65} minSize={40}>
@@ -655,6 +682,18 @@ export default function TimelineEditor() {
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        {/* Right Panel - Properties */}
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
+          <div className="h-full border-l border-border" data-panel-id="right-panel">
+            <RightPanel
+              selectedScrubber={selectedScrubberId ? getAllScrubbers().find(s => s.id === selectedScrubberId) || null : null}
+              onUpdateScrubber={handlePartialUpdateScrubber}
+            />
+          </div>
         </ResizablePanel>
 
       </ResizablePanelGroup>
