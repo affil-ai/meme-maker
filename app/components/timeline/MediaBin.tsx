@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router";
-import { useMemo, memo } from "react";
+import { useMemo, memo, useState } from "react";
 import { FileVideo, FileImage, Type, Clock, Upload, Music, Trash2, SplitSquareHorizontal } from "lucide-react";
 import { Thumbnail } from '@remotion/player';
 import { OffthreadVideo, Img, Video } from 'remotion';
@@ -75,6 +75,8 @@ export default function MediaBin() {
     handleCloseContextMenu 
   } = useOutletContext<MediaBinProps>();
 
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+
   const getMediaIcon = (mediaType: string) => {
     switch (mediaType) {
       case "video":
@@ -87,6 +89,49 @@ export default function MediaBin() {
         return <Music className="h-4 w-4" />;
       default:
         return <FileImage className="h-4 w-4" />;
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Check if the drag contains files
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDraggingOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Only set to false if we're leaving the main container
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
+      setIsDraggingOver(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    
+    // Filter for supported media files
+    const supportedFiles = files.filter(file => {
+      const type = file.type;
+      return type.startsWith('video/') || type.startsWith('image/') || type.startsWith('audio/');
+    });
+
+    // Process each file
+    for (const file of supportedFiles) {
+      await onAddMedia(file);
     }
   };
 
@@ -151,7 +196,13 @@ export default function MediaBin() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-background" onClick={handleCloseContextMenu}>
+    <div 
+      className="h-full flex flex-col bg-background relative" 
+      onClick={handleCloseContextMenu}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {/* Compact Header */}
       <div className="p-2 border-b border-border/50">
         <div className="flex items-center justify-between">
@@ -240,6 +291,19 @@ export default function MediaBin() {
           </div>
         )}
       </div>
+
+      {/* Drag Overlay */}
+      {isDraggingOver && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3 p-6 rounded-lg border-2 border-dashed border-primary bg-accent/20">
+            <Upload className="h-10 w-10 text-primary animate-pulse" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-foreground">Drop media files here</p>
+              <p className="text-xs text-muted-foreground mt-1">Videos, images, and audio files</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Context Menu */}
       {contextMenu && (
