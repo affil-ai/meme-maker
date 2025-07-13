@@ -66,24 +66,12 @@ export default function TimelineEditor() {
   const [isAutoSize, setIsAutoSize] = useState<boolean>(false);
 
 
-  // Scrubber selection state
+  // Unified selection state - single source of truth
   const [selectedScrubberId, setSelectedScrubberId] = useState<string | null>(null);
 
-  // video player media selection state
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
-
-  // Synchronize canvas and timeline selection
-  useEffect(() => {
-    if (selectedItem !== selectedScrubberId) {
-      setSelectedScrubberId(selectedItem);
-    }
-  }, [selectedItem]);
-
-  useEffect(() => {
-    if (selectedScrubberId !== selectedItem) {
-      setSelectedItem(selectedScrubberId);
-    }
-  }, [selectedScrubberId]);
+  // Alias for canvas selection to maintain compatibility
+  const selectedItem = selectedScrubberId;
+  const setSelectedItem = setSelectedScrubberId;
 
   // Custom hooks
   const {
@@ -391,17 +379,7 @@ export default function TimelineEditor() {
   }, [handleZoomIn, handleZoomOut]);
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground" onPointerDown={(e: React.PointerEvent) => {
-      if (e.button !== 0) {
-        return;
-      }
-      // Don't clear selection if clicking in the right panel
-      const target = e.target as HTMLElement;
-      const rightPanel = target.closest('[data-panel-id="right-panel"]');
-      if (!rightPanel) {
-        setSelectedItem(null);
-      }
-    }}>
+    <div className="h-screen flex flex-col bg-background text-foreground">
       {/* Ultra-minimal Top Bar */}
       <header className="h-9 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-3 shrink-0">
         <div className="flex items-center gap-3">
@@ -522,6 +500,12 @@ export default function TimelineEditor() {
                 <div
                   className={`flex-1 ${theme === "dark" ? "bg-zinc-900" : "bg-zinc-200/70"
                     } flex flex-col items-center justify-center p-3 border border-border/50 rounded-lg overflow-hidden shadow-2xl relative`}
+                  onPointerDown={(e: React.PointerEvent) => {
+                    // Only clear selection if clicking directly on the preview container background
+                    if (e.target === e.currentTarget) {
+                      setSelectedItem(null);
+                    }
+                  }}
                 >
                   <div
                     className="flex-1 flex items-center justify-center w-full">

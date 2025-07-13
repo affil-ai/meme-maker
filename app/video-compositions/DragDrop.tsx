@@ -121,7 +121,9 @@ export const ResizeHandle: React.FC<{
         // );
       };
 
-      const onPointerUp = () => {
+      const onPointerUp = (e: PointerEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
         setItem({
           ...newScrubberStateRef.current,
           is_dragging: false,
@@ -203,11 +205,23 @@ export const SelectionOutline: React.FC<{
         changeItem(newScrubberStateRef.current);
       };
 
-      const onPointerUp = () => {
+      const onPointerUp = (e: PointerEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
         // console.log(
         //   "onPointerUp is called",
         //   JSON.stringify(ScrubberState, null, 2)
         // );
+        
+        // Maintain selection after drag
+        const currentId = newScrubberStateRef.current.id;
+        if (selectedItem === currentId) {
+          // Re-select after update to maintain selection
+          setTimeout(() => {
+            setSelectedItem(currentId);
+          }, 0);
+        }
+        
         changeItem({
           ...newScrubberStateRef.current,
           is_dragging: false,
@@ -227,6 +241,7 @@ export const SelectionOutline: React.FC<{
   const onPointerDown = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
       if (e.button !== 0) {
         return;
       }
@@ -240,6 +255,7 @@ export const SelectionOutline: React.FC<{
 
   return (
     <div
+      data-item-type="canvas-item"
       onPointerDown={onPointerDown}
       onPointerEnter={onMouseEnter}
       onPointerLeave={onMouseLeave}
