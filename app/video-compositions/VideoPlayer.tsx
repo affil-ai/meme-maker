@@ -198,11 +198,14 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   // Calculate composition width if not provided
   if (compositionWidth === null) {
-    let maxWidth = 0;
+    let maxWidth = 720; // Default minimum width
     for (const item of timelineData) {
       for (const scrubber of item.scrubbers) {
-        if (scrubber.media_width !== null && scrubber.media_width > maxWidth) {
-          maxWidth = scrubber.media_width;
+        // Use player dimensions (resized) if available, otherwise fall back to media dimensions
+        const width = scrubber.width_player || scrubber.media_width || 0;
+        const rightEdge = (scrubber.left_player || 0) + width;
+        if (rightEdge > maxWidth) {
+          maxWidth = rightEdge;
         }
       }
     }
@@ -211,14 +214,14 @@ export function VideoPlayer({
 
   // Calculate composition height if not provided
   if (compositionHeight === null) {
-    let maxHeight = 0;
+    let maxHeight = 480; // Default minimum height
     for (const item of timelineData) {
       for (const scrubber of item.scrubbers) {
-        if (
-          scrubber.media_height !== null &&
-          scrubber.media_height > maxHeight
-        ) {
-          maxHeight = scrubber.media_height;
+        // Use player dimensions (resized) if available, otherwise fall back to media dimensions
+        const height = scrubber.height_player || scrubber.media_height || 0;
+        const bottomEdge = (scrubber.top_player || 0) + height;
+        if (bottomEdge > maxHeight) {
+          maxHeight = bottomEdge;
         }
       }
     }
