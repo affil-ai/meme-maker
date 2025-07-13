@@ -36,7 +36,10 @@ export default function RightPanel({ selectedScrubber, onUpdateScrubber }: Right
 
   const handlePlayerPropertyChange = (property: string, value: string | number) => {
     const playerProperty = `${property}_player` as keyof ScrubberState;
-    onUpdateScrubber(selectedScrubber.id, { [playerProperty]: value });
+    onUpdateScrubber(selectedScrubber.id, { 
+      [playerProperty]: value,
+      is_dragging: false  // Ensure drag state is false when updating from panel
+    });
   };
 
   const handleTextPropertyChange = (property: string, value: string | number) => {

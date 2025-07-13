@@ -159,6 +159,11 @@ export const SelectionOutline: React.FC<{
   const scale = useCurrentScale();
   const scaledBorder = Math.ceil(2 / scale);
   const newScrubberStateRef = React.useRef<ScrubberState>(ScrubberState);
+  
+  // Update ref when ScrubberState changes
+  React.useEffect(() => {
+    newScrubberStateRef.current = ScrubberState;
+  }, [ScrubberState]);
 
   const [hovered, setHovered] = React.useState(false);
 
@@ -190,16 +195,21 @@ export const SelectionOutline: React.FC<{
 
   const startDragging = useCallback(
     (e: PointerEvent | React.MouseEvent) => {
+      e.stopPropagation();
       const initialX = e.clientX;
       const initialY = e.clientY;
+      
+      // Store initial positions from current state
+      const initialLeftPlayer = ScrubberState.left_player;
+      const initialTopPlayer = ScrubberState.top_player;
 
       const onPointerMove = (pointerMoveEvent: PointerEvent) => {
         const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
         const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
         newScrubberStateRef.current = {
           ...ScrubberState,
-          left_player: Math.round(ScrubberState.left_player + offsetX),
-          top_player: Math.round(ScrubberState.top_player + offsetY),
+          left_player: Math.round(initialLeftPlayer + offsetX),
+          top_player: Math.round(initialTopPlayer + offsetY),
           is_dragging: true,
         };
         changeItem(newScrubberStateRef.current);
@@ -235,7 +245,7 @@ export const SelectionOutline: React.FC<{
         once: true,
       });
     },
-    [ScrubberState, scale, changeItem]
+    [ScrubberState.left_player, ScrubberState.top_player, ScrubberState.id, scale, changeItem]
   );
 
   const onPointerDown = useCallback(
