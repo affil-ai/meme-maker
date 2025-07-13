@@ -175,14 +175,16 @@ export const useTimeline = () => {
   );
 
   const handleAddTrack = useCallback(() => {
+    const newTrackId = generateUUID();
     const newTrack: TrackState = {
-      id: generateUUID(),
+      id: newTrackId,
       scrubbers: [],
     };
     setTimeline((prev) => ({
       ...prev,
       tracks: [...prev.tracks, newTrack],
     }));
+    return newTrackId;
   }, []);
 
   const handleDeleteTrack = useCallback((trackId: string) => {
@@ -277,6 +279,87 @@ export const useTimeline = () => {
       }));
     },
     []
+  );
+
+  const handleDropOnNewTrack = useCallback(
+    (item: MediaBinItem, dropLeftPx: number, trackCount: number) => {
+      console.log("Creating new tracks and dropping media", item.name);
+      
+      const pixelsPerSecond = getPixelsPerSecond();
+      let widthPx = item.mediaType === "text" ? 80 : 150;
+      if ((item.mediaType === "video" || item.mediaType === "audio") && item.durationInSeconds) {
+        widthPx = item.durationInSeconds * pixelsPerSecond;
+      } else if (item.mediaType === "image") {
+        widthPx = 100;
+      }
+      widthPx = Math.max(20, widthPx);
+
+      // For text elements, provide default dimensions if they're 0
+      const playerWidth =
+        item.mediaType === "text" && item.media_width === 0
+          ? Math.max(
+            200,
+            (item.text?.textContent?.length || 10) *
+            (item.text?.fontSize || 48) *
+            0.6
+          )
+          : item.media_width;
+      const playerHeight =
+        item.mediaType === "text" && item.media_height === 0
+          ? Math.max(80, (item.text?.fontSize || 48) * 1.5)
+          : item.media_height;
+
+      // Create new tracks and add the scrubber in a single state update
+      setTimeline((prev) => {
+        const currentTrackCount = prev.tracks.length;
+        const tracksToCreate = Math.max(0, trackCount - currentTrackCount + 1);
+        
+        // Generate new tracks
+        const newTracks: TrackState[] = [];
+        for (let i = 0; i < tracksToCreate; i++) {
+          newTracks.push({
+            id: generateUUID(),
+            scrubbers: [],
+          });
+        }
+        
+        // Create the scrubber for the last new track
+        const targetTrackIndex = trackCount;
+        const newScrubber: ScrubberState = {
+          id: generateUUID(),
+          left: dropLeftPx,
+          width: widthPx,
+          mediaType: item.mediaType,
+          mediaUrlLocal: item.mediaUrlLocal,
+          mediaUrlRemote: item.mediaUrlRemote,
+          y: targetTrackIndex,
+          name: item.name,
+          durationInSeconds: item.durationInSeconds,
+          media_width: item.media_width,
+          media_height: item.media_height,
+          text: item.text,
+          sourceMediaBinId: item.id,
+          left_player: 100,
+          top_player: 100,
+          width_player: playerWidth,
+          height_player: playerHeight,
+          is_dragging: false,
+          uploadProgress: item.uploadProgress,
+          isUploading: item.isUploading,
+        };
+        
+        // Add the scrubber to the last new track
+        if (newTracks.length > 0) {
+          newTracks[newTracks.length - 1].scrubbers.push(newScrubber);
+        }
+        
+        return {
+          ...prev,
+          tracks: [...prev.tracks, ...newTracks],
+        };
+      });
+    },
+    [getPixelsPerSecond]
   );
 
   const handleDropOnTrack = useCallback(
@@ -449,6 +532,7 @@ export const useTimeline = () => {
     handleDeleteScrubbersByMediaBinId,
     handleAddScrubberToTrack,
     handleDropOnTrack,
+    handleDropOnNewTrack,
     handleSplitScrubberAtRuler,
     handleZoomIn,
     handleZoomOut,

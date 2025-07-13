@@ -25,6 +25,12 @@ interface TimelineTracksProps {
     trackId: string,
     dropLeftPx: number
   ) => void;
+  onDropOnNewTrack: (
+    item: MediaBinItem,
+    dropLeftPx: number,
+    trackIndex: number
+  ) => void;
+  onAddTrack: () => string;
   getAllScrubbers: () => ScrubberState[];
   expandTimeline: () => boolean;
   onRulerMouseDown: (e: React.MouseEvent) => void;
@@ -43,6 +49,8 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
   onUpdateScrubber,
   onDeleteScrubber,
   onDropOnTrack,
+  onDropOnNewTrack,
+  onAddTrack,
   getAllScrubbers,
   expandTimeline,
   onRulerMouseDown,
@@ -51,6 +59,7 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
   onSelectScrubber,
 }) => {
   const [scrollTop, setScrollTop] = useState(0);
+  const [dragOverTrackIndex, setDragOverTrackIndex] = useState<number | null>(null);
 
   // Sync track controls with timeline scroll
   useEffect(() => {
@@ -149,7 +158,29 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
                 height: `${timeline.tracks.length * DEFAULT_TRACK_HEIGHT}px`,
                 minHeight: "100%",
               }}
-              onDragOver={(e) => e.preventDefault()}
+              onDragOver={(e) => {
+                e.preventDefault();
+                
+                // Only show feedback if dragging media from media bin
+                if (e.dataTransfer.types.includes('text/plain')) {
+                  const timelineBounds = e.currentTarget.getBoundingClientRect();
+                  const tracksScrollContainer = e.currentTarget.parentElement;
+                  
+                  if (timelineBounds && tracksScrollContainer) {
+                    const scrollTop = tracksScrollContainer.scrollTop || 0;
+                    const dropYInTimeline = e.clientY - timelineBounds.top + scrollTop;
+                    const trackIndex = Math.floor(dropYInTimeline / DEFAULT_TRACK_HEIGHT);
+                    
+                    setDragOverTrackIndex(trackIndex);
+                  }
+                }
+              }}
+              onDragLeave={(e) => {
+                // Only clear if leaving the entire timeline area
+                if (e.currentTarget === e.target) {
+                  setDragOverTrackIndex(null);
+                }
+              }}
               onClick={(e) => {
                 // Deselect scrubber when clicking on empty timeline area
                 if (e.target === e.currentTarget) {
@@ -158,6 +189,7 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
               }}
               onDrop={(e) => {
                 e.preventDefault();
+                setDragOverTrackIndex(null); // Clear drag feedback
                 const itemString = e.dataTransfer.getData("text/plain");
                 if (!itemString) return;
 
@@ -174,15 +206,15 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
                 const dropYInTimeline =
                   e.clientY - timelineBounds.top + scrollTop;
 
-                let trackIndex = Math.floor(
+                const trackIndex = Math.floor(
                   dropYInTimeline / DEFAULT_TRACK_HEIGHT
                 );
-                trackIndex = Math.max(
-                  0,
-                  Math.min(timeline.tracks.length - 1, trackIndex)
-                );
 
-                if (timeline.tracks[trackIndex]) {
+                // Check if dropped below all existing tracks
+                if (trackIndex >= timeline.tracks.length) {
+                  // Use the new function that handles both track creation and media drop
+                  onDropOnNewTrack(item, dropXInTimeline, trackIndex);
+                } else if (timeline.tracks[trackIndex]) {
                   onDropOnTrack(
                     item,
                     timeline.tracks[trackIndex].id,
@@ -256,6 +288,21 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
                   ))}
                 </div>
               ))}
+
+              {/* New track indicator when dragging */}
+              {dragOverTrackIndex !== null && dragOverTrackIndex >= timeline.tracks.length && (
+                <div
+                  className="absolute w-full border-2 border-dashed border-primary/50 bg-primary/10 pointer-events-none"
+                  style={{
+                    top: `${dragOverTrackIndex * DEFAULT_TRACK_HEIGHT}px`,
+                    height: `${DEFAULT_TRACK_HEIGHT}px`,
+                  }}
+                >
+                  <div className="absolute left-2 top-1 text-xs text-primary font-medium">
+                    New Track {dragOverTrackIndex + 1}
+                  </div>
+                </div>
+              )}
 
               {/* Scrubbers */}
               {getAllScrubbers().map((scrubber) => (

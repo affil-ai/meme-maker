@@ -86,6 +86,7 @@ export default function TimelineEditor() {
     handleDeleteScrubber,
     handleDeleteScrubbersByMediaBinId,
     handleDropOnTrack,
+    handleDropOnNewTrack,
     handleSplitScrubberAtRuler,
     handleZoomIn,
     handleZoomOut,
@@ -642,6 +643,8 @@ export default function TimelineEditor() {
                   onUpdateScrubber={handleUpdateScrubber}
                   onDeleteScrubber={handleDeleteScrubber}
                   onDropOnTrack={handleDropOnTrack}
+                  onDropOnNewTrack={handleDropOnNewTrack}
+                  onAddTrack={handleAddTrack}
                   getAllScrubbers={getAllScrubbers}
                   expandTimeline={expandTimelineCallback}
                   onRulerMouseDown={handleRulerMouseDown}
