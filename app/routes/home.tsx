@@ -10,7 +10,6 @@ import {
   Settings,
   Plus,
   Minus,
-  ChevronLeft,
   Scissors,
 } from "lucide-react";
 
@@ -46,14 +45,7 @@ import { useRenderer } from "~/hooks/useRenderer";
 // Types and constants
 import { FPS } from "~/components/timeline/types";
 import { useNavigate } from "react-router";
-import { ChatBox } from "~/components/chat/ChatBox";
 
-interface Message {
-  id: string;
-  content: string;
-  isUser: boolean;
-  timestamp: Date;
-}
 
 export default function TimelineEditor() {
   // Refs
@@ -68,13 +60,10 @@ export default function TimelineEditor() {
   const navigate = useNavigate();
 
   // State for video dimensions
-  const [width, setWidth] = useState<number>(1920);
-  const [height, setHeight] = useState<number>(1080);
+  const [width, setWidth] = useState<number>(1080);
+  const [height, setHeight] = useState<number>(1920);
   const [isAutoSize, setIsAutoSize] = useState<boolean>(false);
-  const [isChatMinimized, setIsChatMinimized] = useState<boolean>(false);
 
-  // Chat state
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
   // Scrubber selection state
   const [selectedScrubberId, setSelectedScrubberId] = useState<string | null>(null);
@@ -453,7 +442,7 @@ export default function TimelineEditor() {
         <ResizableHandle withHandle />
 
         {/* Main Content Area */}
-        <ResizablePanel defaultSize={isChatMinimized ? 80 : 60}>
+        <ResizablePanel defaultSize={80}>
           <ResizablePanelGroup direction="vertical">
             {/* Preview Area */}
             <ResizablePanel defaultSize={65} minSize={40}>
@@ -498,25 +487,6 @@ export default function TimelineEditor() {
                       </Label>
                     </div>
 
-                    {/* Show chat toggle when minimized */}
-                    {isChatMinimized && (
-                      <>
-                        <Separator
-                          orientation="vertical"
-                          className="h-4 mx-1"
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsChatMinimized(false)}
-                          className="h-6 px-2 text-xs"
-                          title="Show Chat"
-                        >
-                          <ChevronLeft className="h-3 w-3 mr-1" />
-                          Chat
-                        </Button>
-                      </>
-                    )}
                   </div>
                 </div>
 
@@ -684,27 +654,6 @@ export default function TimelineEditor() {
           </ResizablePanelGroup>
         </ResizablePanel>
 
-        {/* Conditionally render chat panel */}
-        {!isChatMinimized && (
-          <>
-            <ResizableHandle withHandle />
-
-            {/* Right Panel - Chat */}
-            <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
-              <div className="h-full border-l border-border">
-                <ChatBox
-                  mediaBinItems={mediaBinItems}
-                  handleDropOnTrack={handleDropOnTrack}
-                  isMinimized={false}
-                  onToggleMinimize={() => setIsChatMinimized(true)}
-                  messages={chatMessages}
-                  onMessagesChange={setChatMessages}
-                  timelineState={timeline}
-                />
-              </div>
-            </ResizablePanel>
-          </>
-        )}
       </ResizablePanelGroup>
 
       {/* Hidden file input */}
