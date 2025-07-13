@@ -159,9 +159,9 @@ export function TimelineComposition({
     }
   }
 
-  // Sort by trackIndex (ascending) and push to items
+  // Sort by trackIndex (descending) so lower track numbers appear on top
   const items: React.ReactNode[] = tempItems
-    .sort((a, b) => a.trackIndex - b.trackIndex)
+    .sort((a, b) => b.trackIndex - a.trackIndex)
     .map(item => item.content);
 
   if (isRendering) {

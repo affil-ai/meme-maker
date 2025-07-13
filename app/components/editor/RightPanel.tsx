@@ -5,7 +5,8 @@ import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { Textarea } from '~/components/ui/textarea';
 import { Slider } from '~/components/ui/slider';
-import type { ScrubberState } from '../timeline/types';
+import { type ScrubberState, FPS, PIXELS_PER_SECOND } from '../timeline/types';
+import { useTimelineStore } from '~/stores/useTimelineStore';
 
 interface RightPanelProps {
   selectedScrubber: ScrubberState | null;
@@ -13,6 +14,36 @@ interface RightPanelProps {
 }
 
 export default function RightPanel({ selectedScrubber, onUpdateScrubber }: RightPanelProps) {
+  const { zoomLevel } = useTimelineStore();
+  const pixelsPerSecond = PIXELS_PER_SECOND * zoomLevel;
+
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.round((seconds % 1) * 1000);
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
+  };
+
+  const parseTime = (timeStr: string): number | null => {
+    // Support various formats: mm:ss.ms, ss.ms, or just seconds
+    const colonMatch = timeStr.match(/^(\d+):(\d+)(?:\.(\d+))?$/);
+    if (colonMatch) {
+      const minutes = parseInt(colonMatch[1], 10);
+      const seconds = parseInt(colonMatch[2], 10);
+      const ms = colonMatch[3] ? parseInt(colonMatch[3].padEnd(3, '0'), 10) : 0;
+      return minutes * 60 + seconds + ms / 1000;
+    }
+    
+    const decimalMatch = timeStr.match(/^(\d+)(?:\.(\d+))?$/);
+    if (decimalMatch) {
+      const seconds = parseInt(decimalMatch[1], 10);
+      const ms = decimalMatch[2] ? parseInt(decimalMatch[2].padEnd(3, '0'), 10) : 0;
+      return seconds + ms / 1000;
+    }
+    
+    return null;
+  };
+
   if (!selectedScrubber) {
     return (
       <div className="h-full p-4">
@@ -77,6 +108,60 @@ export default function RightPanel({ selectedScrubber, onUpdateScrubber }: Right
           <div>
             <Label>Type</Label>
             <Input value={selectedScrubber.mediaType} disabled />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Timing</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>Start Time</Label>
+              <Input 
+                type="text" 
+                value={formatTime(selectedScrubber.left / pixelsPerSecond)}
+                onChange={(e) => {
+                  const newTime = parseTime(e.target.value);
+                  if (newTime !== null && newTime >= 0) {
+                    const newLeft = newTime * pixelsPerSecond;
+                    onUpdateScrubber(selectedScrubber.id, { left: newLeft });
+                  }
+                }}
+                placeholder="mm:ss.ms"
+                title="Format: mm:ss.ms or ss.ms"
+              />
+            </div>
+            <div>
+              <Label>End Time</Label>
+              <Input 
+                type="text" 
+                value={formatTime((selectedScrubber.left + selectedScrubber.width) / pixelsPerSecond)}
+                onChange={(e) => {
+                  const newEndTime = parseTime(e.target.value);
+                  if (newEndTime !== null && newEndTime >= 0) {
+                    const startTime = selectedScrubber.left / pixelsPerSecond;
+                    if (newEndTime > startTime) {
+                      const newWidth = (newEndTime - startTime) * pixelsPerSecond;
+                      onUpdateScrubber(selectedScrubber.id, { width: newWidth });
+                    }
+                  }
+                }}
+                placeholder="mm:ss.ms"
+                title="Format: mm:ss.ms or ss.ms"
+              />
+            </div>
+          </div>
+          <div>
+            <Label>Duration</Label>
+            <Input 
+              type="text" 
+              value={formatTime(selectedScrubber.width / pixelsPerSecond)}
+              disabled
+              className="text-muted-foreground"
+            />
           </div>
         </CardContent>
       </Card>
