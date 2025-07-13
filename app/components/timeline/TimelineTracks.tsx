@@ -75,25 +75,6 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
     return () => container.removeEventListener("scroll", handleScroll);
   }, [onScroll, containerRef]);
 
-  // Global click handler to deselect when clicking outside timeline
-  useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
-      const timelineContainer = containerRef.current;
-      const target = e.target as HTMLElement;
-      const rightPanel = target.closest('[data-panel-id="right-panel"]');
-      
-      // Don't clear selection if clicking in the right panel
-      if (timelineContainer && !timelineContainer.contains(e.target as Node) && !rightPanel) {
-        onSelectScrubber(null);
-      }
-    };
-
-    if (selectedScrubberId) {
-      document.addEventListener("click", handleGlobalClick);
-      return () => document.removeEventListener("click", handleGlobalClick);
-    }
-  }, [selectedScrubberId, containerRef, onSelectScrubber]);
-
   return (
     <div className="flex flex-1 min-h-0">
       {/* Track controls column - scrolls with tracks */}
@@ -183,12 +164,6 @@ export const TimelineTracks: React.FC<TimelineTracksProps> = ({
                 // Only clear if leaving the entire timeline area
                 if (e.currentTarget === e.target) {
                   setDragOverTrackIndex(null);
-                }
-              }}
-              onClick={(e) => {
-                // Deselect scrubber when clicking on empty timeline area
-                if (e.target === e.currentTarget) {
-                  onSelectScrubber(null);
                 }
               }}
               onDrop={(e) => {

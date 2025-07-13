@@ -500,12 +500,6 @@ export default function TimelineEditor() {
                 <div
                   className={`flex-1 ${theme === "dark" ? "bg-zinc-900" : "bg-zinc-200/70"
                     } flex flex-col items-center justify-center p-3 border border-border/50 rounded-lg overflow-hidden shadow-2xl relative`}
-                  onPointerDown={(e: React.PointerEvent) => {
-                    // Only clear selection if clicking directly on the preview container background
-                    if (e.target === e.currentTarget) {
-                      setSelectedItem(null);
-                    }
-                  }}
                 >
                   <div
                     className="flex-1 flex items-center justify-center w-full">
