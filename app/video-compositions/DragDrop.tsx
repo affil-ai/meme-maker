@@ -20,6 +20,11 @@ export const ResizeHandle: React.FC<{
   const size = Math.round(HANDLE_SIZE / scale);
   const borderSize = 1 / scale;
   const newScrubberStateRef = React.useRef<ScrubberState>(ScrubberState);
+  
+  // Update ref when ScrubberState changes
+  React.useEffect(() => {
+    newScrubberStateRef.current = ScrubberState;
+  }, [ScrubberState]);
 
   const sizeStyle: React.CSSProperties = useMemo(() => {
     return {
@@ -108,7 +113,7 @@ export const ResizeHandle: React.FC<{
         // console.log('newTop', newTop);
         // console.log('ScrubberState before openpointermove update', ScrubberState);
         newScrubberStateRef.current = {
-          ...ScrubberState,
+          ...newScrubberStateRef.current,
           width_player: Math.max(1, Math.round(newWidth)),
           height_player: Math.max(1, Math.round(newHeight)),
           left_player: Math.round(newLeft),
@@ -207,7 +212,7 @@ export const SelectionOutline: React.FC<{
         const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
         const offsetY = (pointerMoveEvent.clientY - initialY) / scale;
         newScrubberStateRef.current = {
-          ...ScrubberState,
+          ...newScrubberStateRef.current,
           left_player: Math.round(initialLeftPlayer + offsetX),
           top_player: Math.round(initialTopPlayer + offsetY),
           is_dragging: true,
@@ -245,7 +250,7 @@ export const SelectionOutline: React.FC<{
         once: true,
       });
     },
-    [ScrubberState.left_player, ScrubberState.top_player, ScrubberState.id, scale, changeItem]
+    [ScrubberState, scale, changeItem, selectedItem, setSelectedItem]
   );
 
   const onPointerDown = useCallback(
@@ -256,11 +261,10 @@ export const SelectionOutline: React.FC<{
         return;
       }
 
-      console.log("onPointerDown is called", ScrubberState.id);
       setSelectedItem(ScrubberState.id);
       startDragging(e);
     },
-    [ScrubberState.id, setSelectedItem, startDragging]
+    [ScrubberState, setSelectedItem, startDragging]
   );
 
   return (
