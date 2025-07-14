@@ -1,5 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import type { Doc } from "./_generated/dataModel";
+
 
 // Get all media assets for a project
 export const listByProject = query({

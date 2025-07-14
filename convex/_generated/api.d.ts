@@ -15,6 +15,7 @@ import type * as projects from "../projects.js";
 import type * as renderJobs from "../renderJobs.js";
 import type * as timeline from "../timeline.js";
 import type * as timelineClips from "../timelineClips.js";
+import type * as types from "../types.js";
 
 import type {
   ApiFromModules,
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   renderJobs: typeof renderJobs;
   timeline: typeof timeline;
   timelineClips: typeof timelineClips;
+  types: typeof types;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

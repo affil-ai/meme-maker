@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
+import type { MediaAssetWithUrl } from "./types";
+
 
 // Get all timeline data for a project
 export const getTimelineData = query({
@@ -24,12 +25,9 @@ export const getTimelineData = query({
         ]);
         
         // Resolve storage URL if the asset has a storageId
-        let mediaAssetWithUrl: any = mediaAsset;
+        const mediaAssetWithUrl: MediaAssetWithUrl = mediaAsset!;
         if (mediaAsset && mediaAsset.storageId) {
-          const storageUrl = await ctx.storage.getUrl(mediaAsset.storageId);
-          mediaAssetWithUrl = { ...mediaAsset, storageUrl };
-        } else if (mediaAsset) {
-          mediaAssetWithUrl = { ...mediaAsset, storageUrl: null };
+          mediaAssetWithUrl.storageUrl = await ctx.storage.getUrl(mediaAsset.storageId);
         }
         
         return {

@@ -73,10 +73,10 @@ export default function NotFound(): React.ReactElement {
           }}
         >
           <div className="flex items-center h-full px-4 gap-6">
-            <div className="w-20 h-7 bg-muted-foreground/40 rounded"></div>
-            <div className="w-16 h-7 bg-muted-foreground/40 rounded"></div>
-            <div className="w-18 h-7 bg-muted-foreground/40 rounded"></div>
-            <div className="w-14 h-7 bg-muted-foreground/40 rounded"></div>
+            <div className="w-20 h-7 bg-muted-foreground/40 rounded" />
+            <div className="w-16 h-7 bg-muted-foreground/40 rounded" />
+            <div className="w-18 h-7 bg-muted-foreground/40 rounded" />
+            <div className="w-14 h-7 bg-muted-foreground/40 rounded" />
           </div>
         </motion.div>
 
@@ -94,7 +94,7 @@ export default function NotFound(): React.ReactElement {
           }}
         >
           <div className="h-10 border-b-2 border-muted-foreground/30 bg-muted/25 flex items-center px-4">
-            <div className="w-20 h-5 bg-muted-foreground/40 rounded"></div>
+            <div className="w-20 h-5 bg-muted-foreground/40 rounded" />
           </div>
           <div className="p-4 space-y-3">
             {[...Array(10)].map((_, i) => (
@@ -106,8 +106,8 @@ export default function NotFound(): React.ReactElement {
                 ) : (
                   <Music className="w-5 h-5 text-muted-foreground/60" />
                 )}
-                <div className="w-24 h-4 bg-muted-foreground/40 rounded"></div>
-                <div className="w-12 h-3 bg-muted-foreground/30 rounded text-xs"></div>
+                <div className="w-24 h-4 bg-muted-foreground/40 rounded" />
+                <div className="w-12 h-3 bg-muted-foreground/30 rounded text-xs" />
               </div>
             ))}
           </div>
@@ -127,7 +127,7 @@ export default function NotFound(): React.ReactElement {
           }}
         >
           <div className="h-10 border-b-2 border-muted-foreground/30 bg-muted/25 flex items-center px-4">
-            <div className="w-16 h-5 bg-muted-foreground/40 rounded"></div>
+            <div className="w-16 h-5 bg-muted-foreground/40 rounded" />
           </div>
           <div className="p-6">
             <div className="w-full h-48 border-2 border-muted-foreground/40 rounded-lg bg-muted/20 flex items-center justify-center">
@@ -196,10 +196,10 @@ export default function NotFound(): React.ReactElement {
             >
               <Video className="w-5 h-5 mr-3 text-muted-foreground/60" />
               <div className="flex gap-2">
-                <div className="w-20 h-6 bg-blue-500/50 rounded"></div>
-                <div className="w-16 h-6 bg-blue-500/50 rounded"></div>
-                <div className="w-24 h-6 bg-blue-500/50 rounded"></div>
-                <div className="w-12 h-6 bg-blue-500/50 rounded"></div>
+                <div className="w-20 h-6 bg-blue-500/50 rounded" />
+                <div className="w-16 h-6 bg-blue-500/50 rounded" />
+                <div className="w-24 h-6 bg-blue-500/50 rounded" />
+                <div className="w-12 h-6 bg-blue-500/50 rounded" />
               </div>
             </motion.div>
 
@@ -218,9 +218,9 @@ export default function NotFound(): React.ReactElement {
             >
               <Music className="w-5 h-5 mr-3 text-muted-foreground/60" />
               <div className="flex gap-2">
-                <div className="w-32 h-6 bg-green-500/50 rounded"></div>
-                <div className="w-20 h-6 bg-green-500/50 rounded"></div>
-                <div className="w-16 h-6 bg-green-500/50 rounded"></div>
+                <div className="w-32 h-6 bg-green-500/50 rounded" />
+                <div className="w-20 h-6 bg-green-500/50 rounded" />
+                <div className="w-16 h-6 bg-green-500/50 rounded" />
               </div>
             </motion.div>
 
@@ -239,10 +239,10 @@ export default function NotFound(): React.ReactElement {
             >
               <Scissors className="w-5 h-5 mr-3 text-muted-foreground/60" />
               <div className="flex gap-2">
-                <div className="w-12 h-6 bg-purple-500/50 rounded"></div>
-                <div className="w-8 h-6 bg-purple-500/50 rounded"></div>
-                <div className="w-14 h-6 bg-purple-500/50 rounded"></div>
-                <div className="w-10 h-6 bg-purple-500/50 rounded"></div>
+                <div className="w-12 h-6 bg-purple-500/50 rounded" />
+                <div className="w-8 h-6 bg-purple-500/50 rounded" />
+                <div className="w-14 h-6 bg-purple-500/50 rounded" />
+                <div className="w-10 h-6 bg-purple-500/50 rounded" />
               </div>
             </motion.div>
           </div>
@@ -276,7 +276,7 @@ export default function NotFound(): React.ReactElement {
           }}
         >
           <div className="h-10 border-b-2 border-muted-foreground/30 bg-muted/25 flex items-center px-4">
-            <div className="w-20 h-5 bg-muted-foreground/40 rounded"></div>
+            <div className="w-20 h-5 bg-muted-foreground/40 rounded" />
           </div>
           <div className="p-4 grid grid-cols-6 gap-3">
             {[...Array(12)].map((_, i) => (
@@ -481,7 +481,7 @@ export default function NotFound(): React.ReactElement {
             <div className="flex flex-col flex-1 min-w-0">
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-sm font-semibold text-primary">VideoEditor</span>
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
               </div>
               <div className="bg-muted/15 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow-sm border border-border/30 w-fit max-w-[280px] sm:max-w-xs">
                 <p className="text-sm text-foreground">Hey there! 👋</p>
@@ -495,7 +495,7 @@ export default function NotFound(): React.ReactElement {
 
           {/* Second message - consecutive message */}
           <div className="flex items-start gap-3 mb-1">
-            <div className="w-8 h-8 flex-shrink-0"></div>
+            <div className="w-8 h-8 flex-shrink-0" />
             <div className="flex flex-col flex-1 min-w-0 relative">
               {/* Typing indicator */}
               <motion.div
@@ -565,7 +565,7 @@ export default function NotFound(): React.ReactElement {
 
           {/* Third message - Button as message */}
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 flex-shrink-0"></div>
+            <div className="w-8 h-8 flex-shrink-0" />
             <div className="flex flex-col flex-1 min-w-0 mt-2">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
