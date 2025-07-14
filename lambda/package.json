@@ -1,0 +1,21 @@
+{
+  "name": "video-renderer-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function for video rendering",
+  "main": "remotion-handler.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@remotion/lambda": "^4.0.323",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/node": "^20",
+    "typescript": "^5.8.3"
+  }
+}

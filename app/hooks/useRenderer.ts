@@ -5,7 +5,7 @@ import {
   type TimelineState,
   FPS,
 } from "~/components/timeline/types";
-import { apiUrl } from "~/utils/api";
+import { getRenderApiUrl, RENDER_API_ENDPOINTS } from "~/config/api";
 
 export const useRenderer = () => {
   const [isRendering, setIsRendering] = useState(false);
@@ -20,7 +20,10 @@ export const useRenderer = () => {
     ) => {
       setIsRendering(true);
       setRenderStatus("Starting render...");
-      console.log("Render server base URL:", "http://localhost:8000/render");
+      
+      const renderApiUrl = getRenderApiUrl();
+      const renderEndpoint = `${renderApiUrl}${RENDER_API_ENDPOINTS.render}`;
+      console.log("Render server URL:", renderEndpoint);
 
       try {
 
@@ -72,7 +75,7 @@ export const useRenderer = () => {
         setRenderStatus("Rendering video...");
 
         const response = await axios.post(
-          "http://localhost:8000/render",
+          renderEndpoint,
           {
             timelineData: timelineData,
             compositionWidth: compositionWidth,
@@ -93,31 +96,55 @@ export const useRenderer = () => {
             })(),
           },
           {
-            responseType: "blob",
             timeout: 900000,
+          }
+        );
+
+        // Check if we got a successful response with download URL
+        if (!response.data.downloadUrl) {
+          throw new Error("No download URL received from render service");
+        }
+
+        // Download the video from S3
+        setRenderStatus("Downloading rendered video from S3...");
+        
+        try {
+          // Fetch the video from S3
+          const videoResponse = await axios.get(response.data.downloadUrl, {
+            responseType: 'blob',
             onDownloadProgress: (progressEvent) => {
               if (progressEvent.lengthComputable && progressEvent.total) {
                 const percentCompleted = Math.round(
                   (progressEvent.loaded * 100) / progressEvent.total
                 );
                 setRenderStatus(
-                  `Downloading rendered video: ${percentCompleted}%`
+                  `Downloading video: ${percentCompleted}%`
                 );
               }
             },
-          }
-        );
+          });
 
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "rendered-video.mp4");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-
-        setRenderStatus("Video rendered and downloaded successfully!");
+          // Create blob URL and trigger download
+          const blob = new Blob([videoResponse.data], { type: 'video/mp4' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", response.data.outputFile || "rendered-video.mp4");
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          
+          // Clean up the blob URL
+          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+          
+          setRenderStatus("Video rendered and downloaded successfully!");
+        } catch (downloadError) {
+          console.error("Download error:", downloadError);
+          // Fallback: open S3 URL in new tab
+          setRenderStatus("Opening video in new tab...");
+          window.open(response.data.downloadUrl, '_blank');
+          setRenderStatus("Video rendered successfully! Check your new tab to download.");
+        }
       } catch (error) {
         console.error("Render error:", error);
         if (axios.isAxiosError(error)) {
@@ -131,7 +158,7 @@ export const useRenderer = () => {
             );
           } else if (error.request) {
             setRenderStatus(
-              "Error: Cannot connect to render service. Please refresh and try again."
+              "Error: Cannot connect to render service. Please refresh and try again.",
             );
           } else {
             setRenderStatus(`Error: ${error.message}`);

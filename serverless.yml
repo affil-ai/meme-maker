@@ -12,38 +12,35 @@ provider:
   memorySize: 3008 # 3GB memory
   environment:
     NODE_OPTIONS: --max-old-space-size=2560
+    REMOTION_LAMBDA_FUNCTION_NAME: ${env:REMOTION_LAMBDA_FUNCTION_NAME}
+    REMOTION_S3_BUCKET_NAME: ${env:REMOTION_S3_BUCKET_NAME}
+    REMOTION_SERVE_URL: ${env:REMOTION_SERVE_URL}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: 
+            - arn:aws:lambda:us-east-1:*:function:remotion-render-*
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:PutObjectAcl
+            - s3:ListBucket
+          Resource:
+            - arn:aws:s3:::remotionlambda-*/*
+            - arn:aws:s3:::remotionlambda-*
+
+package:
+  patterns:
+    - '!**'
+    - 'dist/lambda/**'
+    - 'node_modules/**'
 
 functions:
   api:
-    handler: lambda/handler.handler
+    handler: dist/lambda/remotion-handler.handler
     events:
       - httpApi: "*"
-
-build:
-  esbuild:
-    bundle: true
-    minify: false
-    sourcemap: false
-    target: node20
-    platform: node
-    format: cjs
-    external:
-      - '@remotion/bundler'
-      - '@remotion/renderer'
-      - 'uglify-js'
-      - '@swc/core'
-      - 'esbuild'
-      - 'webpack'
-      - 'terser-webpack-plugin'
-      - 'vite'
-      - 'sharp'
-      - 'canvas'
-      - 'chrome-aws-lambda'
-      - 'puppeteer'
-      - 'puppeteer-core'
-      - '@sparticuz/chromium'
-    loader:
-      '.ts': ts
-      '.tsx': tsx
-      '.js': js
-      '.jsx': jsx
