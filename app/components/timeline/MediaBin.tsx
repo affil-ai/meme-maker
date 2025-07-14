@@ -1,4 +1,5 @@
-import { useOutletContext } from "react-router";
+"use client";
+
 import { useMemo, memo, useState } from "react";
 import { FileVideo, FileImage, Type, Clock, Upload, Music, Trash2, SplitSquareHorizontal } from "lucide-react";
 import { Thumbnail } from '@remotion/player';
@@ -63,17 +64,16 @@ export function loader() {
   return null;
 }
 
-export default function MediaBin() {
-  const { 
-    mediaBinItems, 
-    onAddMedia, 
-    onAddText, 
-    contextMenu, 
-    handleContextMenu, 
-    handleDeleteFromContext, 
-    handleSplitAudioFromContext, 
-    handleCloseContextMenu 
-  } = useOutletContext<MediaBinProps>();
+export default function MediaBin({
+  mediaBinItems,
+  onAddMedia,
+  onAddText,
+  contextMenu,
+  handleContextMenu,
+  handleDeleteFromContext,
+  handleSplitAudioFromContext,
+  handleCloseContextMenu
+}: MediaBinProps) {
 
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 

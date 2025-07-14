@@ -1,8 +1,13 @@
+"use client";
+
 import React from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FileImage, Type } from "lucide-react";
 import { type MediaBinItem } from "~/components/timeline/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import MediaBin from "~/components/timeline/MediaBin";
+import TextEditor from "~/components/media/TextEditor";
 
 interface LeftPanelProps {
   mediaBinItems: MediaBinItem[];
@@ -36,12 +41,12 @@ export default function LeftPanel({
   handleSplitAudioFromContext,
   handleCloseContextMenu,
 }: LeftPanelProps) {
-  const location = useLocation();
+  const pathname = usePathname();
 
   // Determine active tab based on current route
   const getActiveTab = () => {
-    if (location.pathname.includes("/media-bin")) return "media-bin";
-    if (location.pathname.includes("/text-editor")) return "text-editor";
+    if (pathname.includes("/media-bin")) return "media-bin";
+    if (pathname.includes("/text-editor")) return "text-editor";
     return "media-bin"; // default
   };
 
@@ -58,7 +63,7 @@ export default function LeftPanel({
               asChild
               className="h-8 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
-              <Link to="/media-bin" className="flex items-center gap-1.5">
+              <Link href="/media-bin" className="flex items-center gap-1.5">
                 <FileImage className="h-3 w-3" />
                 Media
               </Link>
@@ -68,7 +73,7 @@ export default function LeftPanel({
               asChild
               className="h-8 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
-              <Link to="/text-editor" className="flex items-center gap-1.5">
+              <Link href="/text-editor" className="flex items-center gap-1.5">
                 <Type className="h-3 w-3" />
                 Text
               </Link>
@@ -78,19 +83,23 @@ export default function LeftPanel({
 
         {/* Tab Content */}
         <div className="flex-1 overflow-hidden">
-          <Outlet
-            context={{
-              // MediaBin props
-              mediaBinItems,
-              onAddMedia,
-              onAddText,
-              contextMenu,
-              handleContextMenu,
-              handleDeleteFromContext,
-              handleSplitAudioFromContext,
-              handleCloseContextMenu,
-            }}
-          />
+          {activeTab === "media-bin" && (
+            <MediaBin
+              mediaBinItems={mediaBinItems}
+              onAddMedia={onAddMedia}
+              onAddText={onAddText}
+              contextMenu={contextMenu}
+              handleContextMenu={handleContextMenu}
+              handleDeleteFromContext={handleDeleteFromContext}
+              handleSplitAudioFromContext={handleSplitAudioFromContext}
+              handleCloseContextMenu={handleCloseContextMenu}
+            />
+          )}
+          {activeTab === "text-editor" && (
+            <TextEditor
+              onAddText={onAddText}
+            />
+          )}
         </div>
       </Tabs>
     </div>

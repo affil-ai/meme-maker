@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./components/ui/button";
@@ -19,10 +21,10 @@ import {
   Sparkles,
   Stars,
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useRouter } from "next/navigation";
 
 export default function NotFound(): React.ReactElement {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -53,7 +55,7 @@ export default function NotFound(): React.ReactElement {
   }, []);
 
   const handleGoHome = () => {
-    navigate("/");
+    router.push("/");
   };
 
   return (

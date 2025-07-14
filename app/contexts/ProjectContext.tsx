@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, type ReactNode } from "react";
 import type { Id, Doc } from "../../convex/_generated/dataModel";
 

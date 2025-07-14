@@ -47,7 +47,7 @@ import { useRenderer } from "~/hooks/useRenderer";
 
 // Types and constants
 import { FPS, type ScrubberState } from "~/components/timeline/types";
-import { useNavigate } from "react-router";
+import { useRouter } from "next/navigation";
 
 
 export default function TimelineEditor() {
@@ -63,7 +63,7 @@ export default function TimelineEditor() {
   const { theme, setTheme } = useTheme();
 
   // Navigation
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // State for video dimensions
   const [width, setWidth] = useState<number>(1080);
@@ -228,8 +228,8 @@ export default function TimelineEditor() {
   }, []);
 
   const handleAddTextClick = useCallback(() => {
-    navigate("/text-editor");
-  }, [navigate]);
+    router.push("/text-editor");
+  }, [router]);
 
   const handleAddTrackClick = useCallback(() => {
     handleAddTrack();

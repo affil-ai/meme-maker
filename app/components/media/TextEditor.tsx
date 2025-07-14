@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import { useOutletContext, useNavigate } from "react-router";
+import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -26,9 +28,8 @@ interface TextEditorProps {
   ) => void;
 }
 
-export default function TextEditor() {
-  const { onAddText } = useOutletContext<TextEditorProps>();
-  const navigate = useNavigate();
+export default function TextEditor({ onAddText }: TextEditorProps) {
+  const router = useRouter();
 
   const [textContent, setTextContent] = useState("Hello World");
   const [fontSize, setFontSize] = useState(48);
@@ -49,7 +50,7 @@ export default function TextEditor() {
         textAlign,
         fontWeight
       );
-      navigate("/media-bin");
+      router.push("/media-bin");
     }
   };
 

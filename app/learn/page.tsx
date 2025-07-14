@@ -1,3 +1,5 @@
+"use client";
+
 import { Player } from '@remotion/player';
 import {AbsoluteFill, Audio} from 'remotion';
  
@@ -10,7 +12,7 @@ export const MyComposition = () => {
 };
 
 
-export default function Learn() {
+export default function LearnPage() {
   return (
     <Player
       component={MyComposition}
