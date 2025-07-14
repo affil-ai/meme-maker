@@ -6,8 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { Textarea } from '~/components/ui/textarea';
 import { Slider } from '~/components/ui/slider';
 import { type ScrubberState, FPS, PIXELS_PER_SECOND } from '../timeline/types';
-import { useTimelineStore } from '~/stores/useTimelineStore';
 import KeyframeEditor from './KeyframeEditor';
+import { useTimeline } from '~/hooks/useTimeline';
 
 interface RightPanelProps {
   selectedScrubber: ScrubberState | null;
@@ -15,7 +15,7 @@ interface RightPanelProps {
 }
 
 export default function RightPanel({ selectedScrubber, onUpdateScrubber }: RightPanelProps) {
-  const { zoomLevel } = useTimelineStore();
+  const { zoomLevel } = useTimeline();
   const pixelsPerSecond = PIXELS_PER_SECOND * zoomLevel;
 
   const formatTime = (seconds: number): string => {

@@ -2,7 +2,10 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { DEFAULT_TRACK_HEIGHT, type ScrubberState } from "./types";
 import { Trash2 } from "lucide-react";
 import { KeyframeMarker } from "./KeyframeMarker";
-import { useTimelineStore } from "~/stores/useTimelineStore";
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import type { Id } from '../../../convex/_generated/dataModel';
+import { toast } from 'sonner';
 
 // something something for the css not gonna bother with it for now
 export interface SnapConfig {
@@ -55,7 +58,9 @@ export const Scrubber: React.FC<ScrubberProps> = ({
     y: number;
   }>({ visible: false, x: 0, y: 0 });
   
-  const { handleAddKeyframe, handleUpdateKeyframe, handleDeleteKeyframe, handleMoveKeyframe } = useTimelineStore();
+  const createKeyframe = useMutation(api.keyframes.create);
+  const updateKeyframe = useMutation(api.keyframes.update);
+  const deleteKeyframe = useMutation(api.keyframes.remove);
 
   const MINIMUM_WIDTH = 20;
 
@@ -449,8 +454,15 @@ export const Scrubber: React.FC<ScrubberProps> = ({
     
     console.log('📸 Creating keyframe with properties:', currentProperties);
     
-    handleAddKeyframe(scrubber.id, keyframeTime, currentProperties);
-  }, [scrubber, pixelsPerSecond, handleAddKeyframe]);
+    createKeyframe({
+      clipId: scrubber.id as Id<"timelineClips">,
+      time: keyframeTime,
+      properties: currentProperties,
+    }).catch(error => {
+      console.error('Failed to create keyframe:', error);
+      toast.error('Failed to create keyframe');
+    });
+  }, [scrubber, pixelsPerSecond, createKeyframe]);
 
   // Handle right-click context menu
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -527,8 +539,25 @@ export const Scrubber: React.FC<ScrubberProps> = ({
             scrubberDuration={scrubber.width / pixelsPerSecond}
             isSelected={selectedKeyframeId === keyframe.id}
             onSelect={setSelectedKeyframeId}
-            onMove={(keyframeId, newTime) => handleMoveKeyframe(scrubber.id, keyframeId, newTime)}
-            onDelete={(keyframeId) => handleDeleteKeyframe(scrubber.id, keyframeId)}
+            onMove={(keyframeId, newTime) => {
+              // For now, we'll update the keyframe with the same properties but new time
+              const kf = scrubber.keyframes?.find(k => k.id === keyframeId);
+              if (kf) {
+                updateKeyframe({
+                  keyframeId: keyframeId as Id<"keyframes">,
+                  time: newTime,
+                }).catch(error => {
+                  console.error('Failed to move keyframe:', error);
+                  toast.error('Failed to move keyframe');
+                });
+              }
+            }}
+            onDelete={(keyframeId) => {
+              deleteKeyframe({ keyframeId: keyframeId as Id<"keyframes"> }).catch(error => {
+                console.error('Failed to delete keyframe:', error);
+                toast.error('Failed to delete keyframe');
+              });
+            }}
           />
         ))}
         

@@ -5,7 +5,10 @@ import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { type ScrubberState, type Keyframe, type AnimatableProperties } from '../timeline/types';
-import { useTimelineStore } from '~/stores/useTimelineStore';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import type { Id } from '../../../convex/_generated/dataModel';
+import { toast } from 'sonner';
 
 interface KeyframeEditorProps {
   selectedScrubber: ScrubberState;
@@ -13,7 +16,9 @@ interface KeyframeEditorProps {
 }
 
 export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: KeyframeEditorProps) {
-  const { handleAddKeyframe, handleUpdateKeyframe, handleDeleteKeyframe } = useTimelineStore();
+  const createKeyframe = useMutation(api.keyframes.create);
+  const updateKeyframe = useMutation(api.keyframes.update);
+  const deleteKeyframe = useMutation(api.keyframes.remove);
 
   const formatTime = (seconds: number): string => {
     return seconds.toFixed(2) + 's';
@@ -27,7 +32,7 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
     return null;
   };
 
-  const handleAddNewKeyframe = () => {
+  const handleAddNewKeyframe = async () => {
     const scrubberDuration = selectedScrubber.width / pixelsPerSecond;
     const newTime = scrubberDuration / 2; // Add keyframe at middle of scrubber
     
@@ -41,10 +46,20 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
       scale: 1,
     };
     
-    handleAddKeyframe(selectedScrubber.id, newTime, properties);
+    try {
+      await createKeyframe({
+        clipId: selectedScrubber.id as Id<"timelineClips">,
+        time: newTime,
+        properties,
+      });
+      toast.success('Keyframe added');
+    } catch (error) {
+      console.error('Failed to add keyframe:', error);
+      toast.error('Failed to add keyframe');
+    }
   };
 
-  const handlePropertyChange = (keyframeId: string, property: keyof AnimatableProperties, value: number) => {
+  const handlePropertyChange = async (keyframeId: string, property: keyof AnimatableProperties, value: number) => {
     const keyframe = selectedScrubber.keyframes?.find(kf => kf.id === keyframeId);
     if (!keyframe) return;
     
@@ -53,15 +68,15 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
       [property]: value
     };
     
-    console.log('🔧 Updating keyframe property:', {
-      keyframeId,
-      property,
-      oldValue: keyframe.properties[property],
-      newValue: value,
-      updatedProperties
-    });
-    
-    handleUpdateKeyframe(selectedScrubber.id, keyframeId, updatedProperties);
+    try {
+      await updateKeyframe({
+        keyframeId: keyframeId as Id<"keyframes">,
+        properties: updatedProperties,
+      });
+    } catch (error) {
+      console.error('Failed to update keyframe:', error);
+      toast.error('Failed to update keyframe');
+    }
   };
 
   const keyframes = selectedScrubber.keyframes || [];
@@ -96,7 +111,15 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => handleDeleteKeyframe(selectedScrubber.id, keyframe.id)}
+                  onClick={async () => {
+                    try {
+                      await deleteKeyframe({ keyframeId: keyframe.id as Id<"keyframes"> });
+                      toast.success('Keyframe deleted');
+                    } catch (error) {
+                      console.error('Failed to delete keyframe:', error);
+                      toast.error('Failed to delete keyframe');
+                    }
+                  }}
                   className="h-6 w-6 p-0"
                 >
                   <Trash2 className="h-3 w-3" />

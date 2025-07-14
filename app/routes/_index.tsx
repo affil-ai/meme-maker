@@ -6,7 +6,7 @@ import { ProjectSelector } from "~/components/ProjectSelector";
 import { ProjectProvider } from "~/contexts/ProjectContext";
 import TimelineEditor from "~/components/TimelineEditor";
 
-export default function Home() {
+export default function Index() {
   const [selectedProjectId, setSelectedProjectId] = useState<Id<"projects"> | null>(null);
   const selectedProject = useQuery(
     api.projects.get,

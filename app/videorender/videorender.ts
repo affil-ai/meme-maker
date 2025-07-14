@@ -5,6 +5,7 @@ import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import multer from 'multer';
+import type { TimelineDataItem } from '../components/timeline/types';
 
 // The composition you want to render
 const compositionId = 'TimelineComposition';
@@ -267,6 +268,19 @@ app.post('/render', async (req, res) => {
 
     // console.log("Input props:", typeof inputProps.compositionWidth);
     console.log("Input props:", JSON.stringify(inputProps, null, 2));
+    
+    // Debug: Check if keyframes are present
+    console.log("🔍 Checking keyframes in timeline data:");
+    const timelineData = inputProps.timelineData as TimelineDataItem[] | undefined;
+    timelineData?.forEach((timeline, tIdx) => {
+      timeline.scrubbers?.forEach((scrubber, sIdx) => {
+        console.log(`  Scrubber [${tIdx}][${sIdx}] id=${scrubber.id}:`, {
+          hasKeyframes: !!scrubber.keyframes,
+          keyframeCount: scrubber.keyframes?.length || 0,
+          keyframes: scrubber.keyframes
+        });
+      });
+    });
     // Get the composition you want to render
     const composition = await selectComposition({
       serveUrl: bundleLocation,
@@ -287,7 +301,10 @@ app.post('/render', async (req, res) => {
       // Optimized settings for server hardware
       concurrency: 3, // Use 3 cores, leave 1 for system
       verbose: true,
-      logLevel: 'info', // More detailed logging for server monitoring
+      logLevel: 'verbose', // Changed to verbose to see all logs
+      onBrowserLog: (log) => {
+        console.log('🌐 Browser log:', log.text);
+      },
       // Balanced encoding settings for server performance
       ffmpegOverride: ({ args }) => {
         return [

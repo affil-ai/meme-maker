@@ -98,6 +98,9 @@ export interface TimelineDataItem {
     
     // Playback properties
     playbackSpeed?: number; // playback speed multiplier (0.25 to 4)
+    
+    // Animation keyframes
+    keyframes?: Keyframe[];
   })[];
 }
 

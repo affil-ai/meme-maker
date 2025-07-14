@@ -6,11 +6,13 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { ConvexProvider } from "convex/react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./components/ui/ThemeProvider";
+import { convex } from "./lib/convex";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -35,12 +37,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
-        <ThemeProvider>
-          <main className="h-screen w-full overflow-hidden">{children}</main>
-          <Toaster position="top-right" expand={false} richColors closeButton />
-          <ScrollRestoration />
-          <Scripts />
-        </ThemeProvider>
+        <ConvexProvider client={convex}>
+          <ThemeProvider>
+            <main className="h-screen w-full overflow-hidden">{children}</main>
+            <Toaster position="top-right" expand={false} richColors closeButton />
+            <ScrollRestoration />
+            <Scripts />
+          </ThemeProvider>
+        </ConvexProvider>
       </body>
     </html>
   );
