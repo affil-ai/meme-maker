@@ -6,9 +6,8 @@ import type {
   TimelineDataItem,
   TimelineState,
   TrackState,
-} from "~/components/timeline/types";
+} from "../components/timeline/types";
 import { SortedOutlines, layerContainer, outer } from "./DragDrop";
-import { interpolateKeyframes, getBaseProperties } from "~/utils/keyframeInterpolation";
 
 type TimelineCompositionProps = {
   timelineData: TimelineDataItem[];
