@@ -24,7 +24,6 @@ import { useTheme } from "next-themes";
 // Components
 import LeftPanel from "~/components/editor/LeftPanel";
 import RightPanel from "~/components/editor/RightPanel";
-import { VideoPlayer } from "@meme-maker/video-compositions";
 import { RenderStatus } from "~/components/timeline/RenderStatus";
 import { TimelineRuler } from "~/components/timeline/TimelineRuler";
 import { TimelineTracks } from "~/components/timeline/TimelineTracks";
@@ -49,7 +48,7 @@ import { useRenderer } from "~/hooks/useRenderer";
 import { useUndoRedo } from "~/hooks/useUndoRedo";
 
 // Types and constants
-import { FPS, type ScrubberState } from "@meme-maker/video-compositions";
+import { VideoPlayer, FPS, type ScrubberState } from "@meme-maker/video-compositions";
 import { useRouter } from "next/navigation";
 
 
