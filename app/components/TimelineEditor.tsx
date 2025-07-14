@@ -12,6 +12,8 @@ import {
   Minus,
   Scissors,
   FolderOpen,
+  Undo2,
+  Redo2,
 } from "lucide-react";
 import { useProject } from "~/contexts/ProjectContext";
 
@@ -44,6 +46,7 @@ import { useTimeline } from "~/hooks/useTimeline";
 import { useMediaBin } from "~/hooks/useMediaBin";
 import { useRuler } from "~/hooks/useRuler";
 import { useRenderer } from "~/hooks/useRenderer";
+import { useUndoRedo } from "~/hooks/useUndoRedo";
 
 // Types and constants
 import { FPS, type ScrubberState } from "~/components/timeline/types";
@@ -121,6 +124,8 @@ export default function TimelineEditor() {
   } = useRuler(playerRef, timelineWidth, getPixelsPerSecond());
 
   const { isRendering, renderStatus, handleRenderVideo } = useRenderer();
+  
+  const { canUndo, canRedo, handleUndo, handleRedo } = useUndoRedo();
 
   // Derived values
   const timelineData = getTimelineData();
@@ -581,6 +586,27 @@ export default function TimelineEditor() {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleUndo}
+                      disabled={!canUndo}
+                      className="h-6 px-2 text-xs"
+                      title="Undo (Cmd/Ctrl+Z)"
+                    >
+                      <Undo2 className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRedo}
+                      disabled={!canRedo}
+                      className="h-6 px-2 text-xs"
+                      title="Redo (Cmd/Ctrl+Y)"
+                    >
+                      <Redo2 className="h-3 w-3" />
+                    </Button>
+                    <Separator orientation="vertical" className="h-4 mx-1" />
                     <div className="flex items-center">
                       <Button
                         variant="ghost"

@@ -1,5 +1,6 @@
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
+import serverless from 'serverless-http';
 import path from 'path';
 import express, { type Request, type Response } from 'express';
 import cors from 'cors';
@@ -367,3 +368,5 @@ app.listen(port, () => {
 });
 
 
+
+export const handler = serverless(app);

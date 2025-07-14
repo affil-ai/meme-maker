@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 
 // Get all keyframes for a clip
 export const listByClip = query({
@@ -44,6 +45,18 @@ export const create = mutation({
       easing: args.easing || "linear",
     });
     
+    // Get the created keyframe for redo data
+    const createdKeyframe = await ctx.db.get(keyframeId);
+    
+    // Record command for undo/redo
+    await ctx.runMutation(internal.commandHistory.recordCommand, {
+      projectId: clip.projectId,
+      type: "createKeyframe",
+      description: `Added keyframe at ${args.time.toFixed(2)}s`,
+      undoData: { keyframeId },
+      redoData: { keyframeData: createdKeyframe },
+    });
+    
     // Update project's last modified time
     await ctx.db.patch(clip.projectId, {
       lastModified: Date.now(),
@@ -83,7 +96,22 @@ export const update = mutation({
     const clip = await ctx.db.get(keyframe.clipId);
     if (!clip) throw new Error("Clip not found");
     
+    // Store previous state for undo
+    const previousData: any = {};
+    for (const key in updateData) {
+      previousData[key] = (keyframe as any)[key];
+    }
+    
     await ctx.db.patch(keyframeId, updateData);
+    
+    // Record command for undo/redo
+    await ctx.runMutation(internal.commandHistory.recordCommand, {
+      projectId: clip.projectId,
+      type: "updateKeyframe",
+      description: `Updated keyframe at ${keyframe.time.toFixed(2)}s`,
+      undoData: { keyframeId, previousData },
+      redoData: { keyframeId, updateData },
+    });
     
     // Update project's last modified time
     await ctx.db.patch(clip.projectId, {
@@ -102,6 +130,15 @@ export const remove = mutation({
     // Get the clip to find the project ID
     const clip = await ctx.db.get(keyframe.clipId);
     if (!clip) throw new Error("Clip not found");
+    
+    // Record command for undo/redo before deletion
+    await ctx.runMutation(internal.commandHistory.recordCommand, {
+      projectId: clip.projectId,
+      type: "deleteKeyframe",
+      description: `Deleted keyframe at ${keyframe.time.toFixed(2)}s`,
+      undoData: { keyframeData: keyframe },
+      redoData: { keyframeId: args.keyframeId },
+    });
     
     await ctx.db.delete(args.keyframeId);
     

@@ -171,4 +171,33 @@ export default defineSchema({
     recentProjects: v.optional(v.array(v.id("projects"))),
   })
     .index("by_user", ["userId"]),
+
+  // Command history for undo/redo functionality
+  commandHistory: defineTable({
+    projectId: v.id("projects"),
+    timestamp: v.number(),
+    type: v.union(
+      v.literal("createClip"),
+      v.literal("updateClip"),
+      v.literal("deleteClip"),
+      v.literal("splitClip"),
+      v.literal("createKeyframe"),
+      v.literal("updateKeyframe"),
+      v.literal("deleteKeyframe"),
+      v.literal("createMediaAsset"),
+      v.literal("deleteMediaAsset")
+    ),
+    description: v.string(), // Human-readable description
+    
+    // Store the data needed to undo the command
+    undoData: v.any(), // Flexible storage for command-specific undo data
+    
+    // Store the data needed to redo the command
+    redoData: v.any(), // Flexible storage for command-specific redo data
+    
+    // Track if this command has been undone
+    isUndone: v.boolean(),
+  })
+    .index("by_project_and_time", ["projectId", "timestamp"])
+    .index("by_project_undone_time", ["projectId", "isUndone", "timestamp"]),
 });

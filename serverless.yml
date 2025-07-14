@@ -1,0 +1,16 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: affil
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: network
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: video-renderer
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+functions:
+  api:
+    handler: lambda/videorender.handler
+    events:
+      - httpApi: "*"
