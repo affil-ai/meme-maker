@@ -1,21 +1,13 @@
-// Set to true for production, false for development
-const isProduction = false;
-
 export const getApiBaseUrl = (): string => {
-  if (!isProduction) {
-    return "http://localhost:8000";
-  }
-
   if (typeof window !== "undefined") {
-    return `${window.location.origin}/api`;
+    return window.location.origin;
   }
-
-  // Fallback for SSR or other environments (idk)
-  return "/api";
+  // Fallback for SSR
+  return "";
 };
 
 export const apiUrl = (endpoint: string): string => {
   const baseUrl = getApiBaseUrl();
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  return `${baseUrl}${cleanEndpoint}`;
+  return `${baseUrl}/api${cleanEndpoint}`;
 };

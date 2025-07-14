@@ -7,10 +7,10 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "lint": "eslint . --ext .ts,.tsx",
-    "server": "tsx app/videorender/videorender.ts"
+    "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
+    "@mjackson/form-data-parser": "^0.9.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-label": "^2.1.7",

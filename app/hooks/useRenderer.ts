@@ -23,15 +23,6 @@ export const useRenderer = () => {
       console.log("Render server base URL:", apiUrl("/render"));
 
       try {
-        // Test server connection first
-        setRenderStatus("Connecting to render server...");
-        try {
-          await axios.get(apiUrl("/health"), { timeout: 5000 });
-        } catch (healthError) {
-          throw new Error(
-            "Cannot connect to render server. Make sure the server is running on http://localhost:8000"
-          );
-        }
 
         const timelineData = getTimelineData();
         // Calculate composition width if not provided
@@ -140,7 +131,7 @@ export const useRenderer = () => {
             );
           } else if (error.request) {
             setRenderStatus(
-              "Error: Cannot connect to render server. Make sure the backend is running on localhost:8000. Run: pnpm dlx tsx app/videorender/videorender.ts"
+              "Error: Cannot connect to render service. Please refresh and try again."
             );
           } else {
             setRenderStatus(`Error: ${error.message}`);

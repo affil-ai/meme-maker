@@ -16,7 +16,8 @@ A modern video editor built with React and Remotion. This open-source alternativ
 - **Vite** - Lightning-fast build tool
 
 **Backend:**
-- **Express.js** - Video rendering service
+- **React Router v7** - Server-side rendering and API routes
+- **Remotion Renderer** - Video processing integrated into React Router
 - **Docker** - Containerized deployment
 - **Nginx** - Reverse proxy
 
@@ -126,13 +127,9 @@ pnpm install
 
 ```
 
-3. **Start development servers**
+3. **Start development server**
 ```bash
-# Terminal 1: Frontend
 pnpm dev
-
-# Terminal 2: Video render service (if needed)
-pnpm run server
 ```
 
 ### Production Deployment
@@ -154,7 +151,7 @@ The video rendering uses Remotion, a React-based video creation framework:
 
 1. **Composition**: Video is defined as React components
 2. **Timeline mapping**: Scrubbers map to Remotion sequences
-3. **Rendering**: Express service handles video export
+3. **Rendering**: React Router action handles video export
 4. **Output**: Final video with all edits applied
 
 ## 🔄 Development Workflow
