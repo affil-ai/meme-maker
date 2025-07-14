@@ -8,9 +8,42 @@ service: video-renderer
 provider:
   name: aws
   runtime: nodejs20.x
+  timeout: 900 # 15 minutes timeout for video rendering
+  memorySize: 3008 # 3GB memory
+  environment:
+    NODE_OPTIONS: --max-old-space-size=2560
 
 functions:
   api:
-    handler: lambda/videorender.handler
+    handler: lambda/handler.handler
     events:
       - httpApi: "*"
+
+build:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: false
+    target: node20
+    platform: node
+    format: cjs
+    external:
+      - '@remotion/bundler'
+      - '@remotion/renderer'
+      - 'uglify-js'
+      - '@swc/core'
+      - 'esbuild'
+      - 'webpack'
+      - 'terser-webpack-plugin'
+      - 'vite'
+      - 'sharp'
+      - 'canvas'
+      - 'chrome-aws-lambda'
+      - 'puppeteer'
+      - 'puppeteer-core'
+      - '@sparticuz/chromium'
+    loader:
+      '.ts': ts
+      '.tsx': tsx
+      '.js': js
+      '.jsx': jsx
