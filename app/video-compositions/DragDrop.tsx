@@ -323,6 +323,9 @@ export const layerContainer: React.CSSProperties = {
 
 export const outer: React.CSSProperties = {
   backgroundColor: "#ffffff", // White background for video preview
+  position: "absolute",
+  width: "100%",
+  height: "100%",
 };
 
 export const SortedOutlines: React.FC<{

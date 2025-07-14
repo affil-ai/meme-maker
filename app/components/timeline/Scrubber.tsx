@@ -1,6 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { DEFAULT_TRACK_HEIGHT, type ScrubberState } from "./types";
 import { Trash2 } from "lucide-react";
+import { KeyframeMarker } from "./KeyframeMarker";
+import { useTimelineStore } from "~/stores/useTimelineStore";
 
 // something something for the css not gonna bother with it for now
 export interface SnapConfig {
@@ -40,6 +42,7 @@ export const Scrubber: React.FC<ScrubberProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeMode, setResizeMode] = useState<"left" | "right" | null>(null);
+  const [selectedKeyframeId, setSelectedKeyframeId] = useState<string | null>(null);
   const dragStateRef = useRef({
     offsetX: 0,
     startX: 0,
@@ -51,6 +54,8 @@ export const Scrubber: React.FC<ScrubberProps> = ({
     x: number;
     y: number;
   }>({ visible: false, x: 0, y: 0 });
+  
+  const { handleAddKeyframe, handleUpdateKeyframe, handleDeleteKeyframe, handleMoveKeyframe } = useTimelineStore();
 
   const MINIMUM_WIDTH = 20;
 
@@ -414,6 +419,39 @@ export const Scrubber: React.FC<ScrubberProps> = ({
     return colorSet[scrubber.mediaType] || colorSet.default;
   };
 
+  // Handle double-click to add keyframe
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const scrubberDuration = scrubber.width / pixelsPerSecond;
+    const keyframeTime = (clickX / scrubber.width) * scrubberDuration;
+    
+    console.log('🖱️ Double-click detected:', {
+      clickX,
+      scrubberWidth: scrubber.width,
+      scrubberDuration,
+      keyframeTime,
+      scrubberId: scrubber.id,
+    });
+    
+    // Add keyframe with current properties
+    const currentProperties = {
+      x: scrubber.left_player,
+      y: scrubber.top_player,
+      width: scrubber.width_player,
+      height: scrubber.height_player,
+      rotation: scrubber.rotation || 0,
+      opacity: 1,
+      scale: 1,
+    };
+    
+    console.log('📸 Creating keyframe with properties:', currentProperties);
+    
+    handleAddKeyframe(scrubber.id, keyframeTime, currentProperties);
+  }, [scrubber, pixelsPerSecond, handleAddKeyframe]);
+
   // Handle right-click context menu
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -479,7 +517,21 @@ export const Scrubber: React.FC<ScrubberProps> = ({
         }}
         onMouseDown={(e) => handleMouseDown(e, "drag")}
         onContextMenu={handleContextMenu}
+        onDoubleClick={handleDoubleClick}
       >
+        {/* Keyframe markers */}
+        {scrubber.keyframes?.map((keyframe) => (
+          <KeyframeMarker
+            key={keyframe.id}
+            keyframe={keyframe}
+            scrubberDuration={scrubber.width / pixelsPerSecond}
+            isSelected={selectedKeyframeId === keyframe.id}
+            onSelect={setSelectedKeyframeId}
+            onMove={(keyframeId, newTime) => handleMoveKeyframe(scrubber.id, keyframeId, newTime)}
+            onDelete={(keyframeId) => handleDeleteKeyframe(scrubber.id, keyframeId)}
+          />
+        ))}
+        
         {/* Media type indicator - positioned after left resize handle */}
         <div className="absolute top-0.5 left-3 text-xs font-medium opacity-80 pointer-events-none">
           {scrubber.mediaType === "video" && "V"}

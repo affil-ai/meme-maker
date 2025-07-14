@@ -9,6 +9,8 @@ import {
   type TrackState,
   type ScrubberState,
   type MediaBinItem,
+  type Keyframe,
+  type AnimatableProperties,
   FPS,
 } from '../components/timeline/types'
 import { generateUUID } from '../utils/uuid'
@@ -36,6 +38,11 @@ interface TimelineStore extends TimelineState {
   handleDropOnTrack: (item: MediaBinItem, trackId: string, dropLeftPx: number, pixelsPerSecond: number) => void
   handleDropOnNewTrack: (item: MediaBinItem, dropLeftPx: number, trackCount: number, pixelsPerSecond: number) => void
   handleSplitScrubberAtRuler: (rulerPositionPx: number, selectedScrubberId: string | null, pixelsPerSecond: number) => number
+  
+  handleAddKeyframe: (scrubberId: string, time: number, properties: AnimatableProperties) => void
+  handleUpdateKeyframe: (scrubberId: string, keyframeId: string, properties: AnimatableProperties) => void
+  handleDeleteKeyframe: (scrubberId: string, keyframeId: string) => void
+  handleMoveKeyframe: (scrubberId: string, keyframeId: string, newTime: number) => void
   
   getAllScrubbers: () => ScrubberState[]
   expandTimeline: (currentScrollRight: number) => boolean
@@ -399,6 +406,94 @@ export const useTimelineStore = create<TimelineStore>()(
         }))
 
         return 1
+      },
+
+      handleAddKeyframe: (scrubberId, time, properties) => {
+        const newKeyframe: Keyframe = {
+          id: generateUUID(),
+          time,
+          properties,
+        }
+
+        console.log('➕ Adding keyframe:', {
+          scrubberId,
+          time,
+          properties,
+          keyframeId: newKeyframe.id,
+        })
+
+        set((state) => ({
+          tracks: state.tracks.map((track) => ({
+            ...track,
+            scrubbers: track.scrubbers.map((scrubber) => {
+              if (scrubber.id === scrubberId) {
+                const keyframes = scrubber.keyframes || []
+                const updatedKeyframes = [...keyframes, newKeyframe].sort((a, b) => a.time - b.time)
+                console.log('✅ Keyframes after adding:', updatedKeyframes)
+                return {
+                  ...scrubber,
+                  keyframes: updatedKeyframes,
+                }
+              }
+              return scrubber
+            }),
+          })),
+        }))
+      },
+
+      handleUpdateKeyframe: (scrubberId, keyframeId, properties) => {
+        set((state) => ({
+          tracks: state.tracks.map((track) => ({
+            ...track,
+            scrubbers: track.scrubbers.map((scrubber) => {
+              if (scrubber.id === scrubberId && scrubber.keyframes) {
+                return {
+                  ...scrubber,
+                  keyframes: scrubber.keyframes.map((kf) =>
+                    kf.id === keyframeId ? { ...kf, properties } : kf
+                  ),
+                }
+              }
+              return scrubber
+            }),
+          })),
+        }))
+      },
+
+      handleDeleteKeyframe: (scrubberId, keyframeId) => {
+        set((state) => ({
+          tracks: state.tracks.map((track) => ({
+            ...track,
+            scrubbers: track.scrubbers.map((scrubber) => {
+              if (scrubber.id === scrubberId && scrubber.keyframes) {
+                return {
+                  ...scrubber,
+                  keyframes: scrubber.keyframes.filter((kf) => kf.id !== keyframeId),
+                }
+              }
+              return scrubber
+            }),
+          })),
+        }))
+      },
+
+      handleMoveKeyframe: (scrubberId, keyframeId, newTime) => {
+        set((state) => ({
+          tracks: state.tracks.map((track) => ({
+            ...track,
+            scrubbers: track.scrubbers.map((scrubber) => {
+              if (scrubber.id === scrubberId && scrubber.keyframes) {
+                return {
+                  ...scrubber,
+                  keyframes: scrubber.keyframes
+                    .map((kf) => (kf.id === keyframeId ? { ...kf, time: newTime } : kf))
+                    .sort((a, b) => a.time - b.time),
+                }
+              }
+              return scrubber
+            }),
+          })),
+        }))
       },
 
       expandTimeline: (currentScrollRight) => {

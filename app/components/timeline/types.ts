@@ -59,6 +59,9 @@ export interface ScrubberState extends MediaBinItem {
   color?: string;
   textAlign?: "left" | "center" | "right";
   fontWeight?: "normal" | "bold";
+  
+  // Animation keyframes
+  keyframes?: Keyframe[];
 }
 
 // state of the track in the timeline
@@ -96,6 +99,28 @@ export interface TimelineDataItem {
     // Playback properties
     playbackSpeed?: number; // playback speed multiplier (0.25 to 4)
   })[];
+}
+
+// Keyframe types
+export interface Keyframe {
+  id: string;
+  time: number; // time in seconds from the start of the scrubber
+  properties: AnimatableProperties;
+}
+
+export interface AnimatableProperties {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  opacity?: number;
+  scale?: number;
+}
+
+export interface KeyframeAnimation {
+  scrubberId: string;
+  keyframes: Keyframe[];
 }
 
 // Constants

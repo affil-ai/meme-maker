@@ -60,6 +60,7 @@ export const useTimeline = () => {
             trimAfter: scrubber.trimAfter,
             rotation: scrubber.rotation,
             playbackSpeed: scrubber.playbackSpeed,
+            keyframes: scrubber.keyframes,
           }))
         ),
       },

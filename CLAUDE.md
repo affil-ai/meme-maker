@@ -1,3 +1,4 @@
 - Never run the "dev" script unless asked to
 - Always run "typecheck" and "lint" after completing tasks
 - Always use pnpm 
+- The path alias is ~ not @

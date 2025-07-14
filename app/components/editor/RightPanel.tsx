@@ -7,6 +7,7 @@ import { Textarea } from '~/components/ui/textarea';
 import { Slider } from '~/components/ui/slider';
 import { type ScrubberState, FPS, PIXELS_PER_SECOND } from '../timeline/types';
 import { useTimelineStore } from '~/stores/useTimelineStore';
+import KeyframeEditor from './KeyframeEditor';
 
 interface RightPanelProps {
   selectedScrubber: ScrubberState | null;
@@ -329,6 +330,8 @@ export default function RightPanel({ selectedScrubber, onUpdateScrubber }: Right
           </CardContent>
         </Card>
       )}
+
+      <KeyframeEditor selectedScrubber={selectedScrubber} pixelsPerSecond={pixelsPerSecond} />
     </div>
   );
 }

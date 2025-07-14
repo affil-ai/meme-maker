@@ -1,5 +1,5 @@
 import { Player, type PlayerRef } from "@remotion/player";
-import { Sequence, AbsoluteFill, Img, Video, OffthreadVideo, Audio } from "remotion";
+import { Sequence, AbsoluteFill, Img, Video, OffthreadVideo, Audio, useCurrentFrame, interpolate } from "remotion";
 import React, { useCallback, useState } from "react";
 import type {
   ScrubberState,
@@ -8,6 +8,7 @@ import type {
   TrackState,
 } from "~/components/timeline/types";
 import { SortedOutlines, layerContainer, outer } from "./DragDrop";
+import { interpolateKeyframes, getBaseProperties } from "~/utils/keyframeInterpolation";
 
 type TimelineCompositionProps = {
   timelineData: TimelineDataItem[];
@@ -31,6 +32,194 @@ export type VideoPlayerProps = {
   setSelectedItem: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
+// Component to handle animated properties for each media item
+interface AnimatedScrubber {
+  left_player: number;
+  top_player: number;
+  width_player: number;
+  height_player: number;
+  rotation?: number;
+  keyframes?: Array<{
+    time: number;
+    properties: {
+      x?: number;
+      y?: number;
+      width?: number;
+      height?: number;
+      rotation?: number;
+      opacity?: number;
+      scale?: number;
+    };
+  }>;
+}
+
+const AnimatedMediaItem: React.FC<{
+  scrubber: AnimatedScrubber;
+  children: React.ReactNode;
+}> = ({ scrubber, children }) => {
+  const frame = useCurrentFrame();
+  const FPS = 30;
+  
+  // Log scrubber info
+  console.log('🎬 AnimatedMediaItem - Scrubber:', {
+    hasKeyframes: !!scrubber.keyframes,
+    keyframeCount: scrubber.keyframes?.length || 0,
+    currentFrame: frame,
+    baseProperties: {
+      x: scrubber.left_player,
+      y: scrubber.top_player,
+      width: scrubber.width_player,
+      height: scrubber.height_player,
+      rotation: scrubber.rotation || 0,
+    }
+  });
+  
+  // Get base properties
+  const baseProperties = {
+    x: scrubber.left_player,
+    y: scrubber.top_player,
+    width: scrubber.width_player,
+    height: scrubber.height_player,
+    rotation: scrubber.rotation || 0,
+    opacity: 1,
+    scale: 1,
+  };
+  
+  // If no keyframes, use base properties
+  if (!scrubber.keyframes || scrubber.keyframes.length === 0) {
+    console.log('📍 No keyframes - using base properties');
+    return (
+      <AbsoluteFill
+        style={{
+          left: baseProperties.x,
+          top: baseProperties.y,
+          width: baseProperties.width,
+          height: baseProperties.height,
+          transform: `rotate(${baseProperties.rotation}deg) scale(${baseProperties.scale})`,
+          opacity: baseProperties.opacity,
+        }}
+      >
+        {children}
+      </AbsoluteFill>
+    );
+  }
+  
+  // Sort keyframes by time
+  const sortedKeyframes = [...scrubber.keyframes].sort((a, b) => a.time - b.time);
+  
+  console.log('🔑 Keyframes:', sortedKeyframes.map(kf => ({
+    time: kf.time,
+    frame: Math.round(kf.time * FPS),
+    properties: kf.properties
+  })));
+  
+  // If only one keyframe, use its properties directly
+  if (sortedKeyframes.length === 1) {
+    const kf = sortedKeyframes[0];
+    console.log('📍 Single keyframe - using keyframe properties:', kf.properties);
+    return (
+      <AbsoluteFill
+        style={{
+          left: kf.properties.x ?? baseProperties.x,
+          top: kf.properties.y ?? baseProperties.y,
+          width: kf.properties.width ?? baseProperties.width,
+          height: kf.properties.height ?? baseProperties.height,
+          transform: `rotate(${kf.properties.rotation ?? baseProperties.rotation}deg) scale(${kf.properties.scale ?? baseProperties.scale})`,
+          opacity: kf.properties.opacity ?? baseProperties.opacity,
+        }}
+      >
+        {children}
+      </AbsoluteFill>
+    );
+  }
+  
+  // Create frame ranges for interpolation
+  const frameRanges = sortedKeyframes.map((kf) => Math.round(kf.time * FPS));
+  
+  console.log('🎯 Interpolation setup:', {
+    currentFrame: frame,
+    frameRanges,
+    xValues: sortedKeyframes.map((kf) => kf.properties.x ?? baseProperties.x),
+    yValues: sortedKeyframes.map((kf) => kf.properties.y ?? baseProperties.y),
+  });
+  
+  // Interpolate each property
+  const animatedX = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.x ?? baseProperties.x),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedY = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.y ?? baseProperties.y),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedWidth = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.width ?? baseProperties.width),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedHeight = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.height ?? baseProperties.height),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedRotation = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.rotation ?? baseProperties.rotation),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedOpacity = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.opacity ?? baseProperties.opacity),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedScale = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => kf.properties.scale ?? baseProperties.scale),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  console.log('🎨 Animated values:', {
+    frame,
+    x: animatedX,
+    y: animatedY,
+    width: animatedWidth,
+    height: animatedHeight,
+    rotation: animatedRotation,
+    opacity: animatedOpacity,
+    scale: animatedScale,
+  });
+  
+  return (
+    <AbsoluteFill
+      style={{
+        left: animatedX,
+        top: animatedY,
+        width: animatedWidth,
+        height: animatedHeight,
+        transform: `rotate(${animatedRotation}deg) scale(${animatedScale})`,
+        opacity: animatedOpacity,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+ 
 export function TimelineComposition({
   timelineData,
   isRendering,
@@ -51,21 +240,17 @@ export function TimelineComposition({
       switch (scrubber.mediaType) {
         case "text":
           content = (
-            <AbsoluteFill
-              style={{
-                left: scrubber.left_player,
-                top: scrubber.top_player,
-                width: scrubber.width_player,
-                height: scrubber.height_player,
-                justifyContent: "center",
-                alignItems: "center",
-                transform: scrubber.rotation ? `rotate(${scrubber.rotation}deg)` : undefined,
-              }}
+            <AnimatedMediaItem
+              scrubber={scrubber}
             >
               <div
                 style={{
                   textAlign: scrubber.text?.textAlign || "center",
                   width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
                 <p
@@ -84,7 +269,7 @@ export function TimelineComposition({
                   {scrubber.text?.textContent || ""}
                 </p>
               </div>
-            </AbsoluteFill>
+            </AnimatedMediaItem>
           );
           break;
         case "image": {
@@ -92,17 +277,11 @@ export function TimelineComposition({
             ? scrubber.mediaUrlRemote
             : scrubber.mediaUrlLocal;
           content = (
-            <AbsoluteFill
-              style={{
-                left: scrubber.left_player,
-                top: scrubber.top_player,
-                width: scrubber.width_player,
-                height: scrubber.height_player,
-                transform: scrubber.rotation ? `rotate(${scrubber.rotation}deg)` : undefined,
-              }}
+            <AnimatedMediaItem
+              scrubber={scrubber}
             >
-              <Img src={imageUrl!} />
-            </AbsoluteFill>
+              <Img src={imageUrl!} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </AnimatedMediaItem>
           );
           break;
         }
@@ -111,22 +290,17 @@ export function TimelineComposition({
             ? scrubber.mediaUrlRemote
             : scrubber.mediaUrlLocal;
           content = (
-            <AbsoluteFill
-              style={{
-                left: scrubber.left_player,
-                top: scrubber.top_player,
-                width: scrubber.width_player,
-                height: scrubber.height_player,
-                transform: scrubber.rotation ? `rotate(${scrubber.rotation}deg)` : undefined,
-              }}
+            <AnimatedMediaItem
+              scrubber={scrubber}
             >
               <Video 
                 src={videoUrl!} 
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 trimBefore={scrubber.trimBefore || undefined} 
                 trimAfter={scrubber.trimAfter || undefined}
                 playbackRate={scrubber.playbackSpeed || 1}
               />
-            </AbsoluteFill>
+            </AnimatedMediaItem>
           );
           break;
         }
@@ -159,9 +333,9 @@ export function TimelineComposition({
     }
   }
 
-  // Sort by trackIndex (descending) so lower track numbers appear on top
+  // Sort by trackIndex (ascending) so higher track numbers appear on top
   const items: React.ReactNode[] = tempItems
-    .sort((a, b) => b.trackIndex - a.trackIndex)
+    .sort((a, b) => a.trackIndex - b.trackIndex)
     .map(item => item.content);
 
   if (isRendering) {
