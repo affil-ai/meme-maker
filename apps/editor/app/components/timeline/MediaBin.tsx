@@ -4,7 +4,7 @@ import { useMemo, memo, useState } from "react";
 import { FileVideo, FileImage, Type, Clock, Upload, Music, Trash2, SplitSquareHorizontal } from "lucide-react";
 import { Thumbnail } from '@remotion/player';
 import { OffthreadVideo, Img, Video } from 'remotion';
-import { type MediaBinItem } from "./types";
+import { type MediaBinItem } from "@meme-maker/video-compositions";
 import { Badge } from "~/components/ui/badge";
 import { Progress } from "~/components/ui/progress";
 

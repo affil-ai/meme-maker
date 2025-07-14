@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Keyframe } from './types';
+import type { Keyframe } from '@meme-maker/video-compositions';
 
 interface KeyframeMarkerProps {
   keyframe: Keyframe;
