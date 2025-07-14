@@ -113,7 +113,7 @@ export const useMediaBin = (handleDeleteScrubbersByMediaBinId: (mediaBinId: stri
     id: asset._id,
     name: asset.name,
     mediaType: asset.mediaType,
-    mediaUrl: (asset as any).storageUrl || null,
+    mediaUrl: asset.storageUrl || null,
     media_width: asset.width,
     media_height: asset.height,
     text: asset.textProperties || null,

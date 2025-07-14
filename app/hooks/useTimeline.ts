@@ -80,7 +80,7 @@ export const useTimeline = () => {
         left: clip.startTime * pixelsPerSecond,
         width: clip.duration * pixelsPerSecond,
         mediaType: clip.mediaAsset.mediaType,
-        mediaUrl: (clip.mediaAsset as any).storageUrl || null,
+        mediaUrl: clip.mediaAsset.storageUrl || null,
         y: clip.trackIndex,
         name: clip.mediaAsset.name,
         durationInSeconds: clip.duration,
