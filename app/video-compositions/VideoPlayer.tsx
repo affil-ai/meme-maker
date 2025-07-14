@@ -273,9 +273,7 @@ export function TimelineComposition({
           );
           break;
         case "image": {
-          const imageUrl = isRendering
-            ? scrubber.mediaUrlRemote
-            : scrubber.mediaUrlLocal;
+          const imageUrl = scrubber.mediaUrl;
           content = (
             <AnimatedMediaItem
               scrubber={scrubber}
@@ -286,9 +284,7 @@ export function TimelineComposition({
           break;
         }
         case "video": {
-          const videoUrl = isRendering
-            ? scrubber.mediaUrlRemote
-            : scrubber.mediaUrlLocal;
+          const videoUrl = scrubber.mediaUrl;
           content = (
             <AnimatedMediaItem
               scrubber={scrubber}
@@ -305,9 +301,7 @@ export function TimelineComposition({
           break;
         }
         case "audio": {
-          const audioUrl = isRendering
-            ? scrubber.mediaUrlRemote
-            : scrubber.mediaUrlLocal;
+          const audioUrl = scrubber.mediaUrl;
           content = <Audio src={audioUrl!} />;
           break;
         }

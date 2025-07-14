@@ -80,8 +80,7 @@ export const useTimeline = () => {
         left: clip.startTime * pixelsPerSecond,
         width: clip.duration * pixelsPerSecond,
         mediaType: clip.mediaAsset.mediaType,
-        mediaUrlLocal: null, // We'll use remote URLs from Convex
-        mediaUrlRemote: clip.mediaAsset.storageId || null,
+        mediaUrl: (clip.mediaAsset as any).storageUrl || null,
         y: clip.trackIndex,
         name: clip.mediaAsset.name,
         durationInSeconds: clip.duration,
@@ -125,8 +124,7 @@ export const useTimeline = () => {
       scrubbers: getAllScrubbers().map(scrubber => ({
         id: scrubber.id,
         mediaType: scrubber.mediaType,
-        mediaUrlLocal: scrubber.mediaUrlLocal,
-        mediaUrlRemote: scrubber.mediaUrlRemote,
+        mediaUrl: scrubber.mediaUrl,
         media_width: scrubber.media_width,
         media_height: scrubber.media_height,
         text: scrubber.text,

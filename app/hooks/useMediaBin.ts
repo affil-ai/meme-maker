@@ -107,15 +107,13 @@ export const useMediaBin = (handleDeleteScrubbersByMediaBinId: (mediaBinId: stri
   const createMediaAsset = useMutation(api.mediaAssets.create);
   const updateMediaAsset = useMutation(api.mediaAssets.update);
   const deleteMediaAsset = useMutation(api.mediaAssets.remove);
-  const getFileUrl = useMutation(api.fileStorage.getFileUrl);
   
-  // Convert Convex media assets to MediaBinItem format
+  // Convert Convex media assets to MediaBinItem format with resolved URLs
   const mediaBinItems: MediaBinItem[] = (mediaAssets || []).map(asset => ({
     id: asset._id,
     name: asset.name,
     mediaType: asset.mediaType,
-    mediaUrlLocal: null,
-    mediaUrlRemote: asset.storageId || null,
+    mediaUrl: (asset as any).storageUrl || null,
     media_width: asset.width,
     media_height: asset.height,
     text: asset.textProperties || null,

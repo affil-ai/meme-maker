@@ -2,8 +2,7 @@
 export interface BaseScrubber {
   id: string;
   mediaType: "video" | "image" | "audio" | "text";
-  mediaUrlLocal: string | null; // null for text
-  mediaUrlRemote: string | null;
+  mediaUrl: string | null; // null for text or when URL not resolved
   media_width: number; // width of the media in pixels
   media_height: number; // height of the media in pixels
   text: TextProperties | null;

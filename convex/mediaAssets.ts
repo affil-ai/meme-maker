@@ -5,10 +5,23 @@ import { query, mutation } from "./_generated/server";
 export const listByProject = query({
   args: { projectId: v.id("projects") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const assets = await ctx.db
       .query("mediaAssets")
       .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
       .collect();
+    
+    // Resolve storage URLs for assets that have storageId
+    const assetsWithUrls = await Promise.all(
+      assets.map(async (asset) => {
+        if (asset.storageId) {
+          const storageUrl = await ctx.storage.getUrl(asset.storageId);
+          return { ...asset, storageUrl };
+        }
+        return { ...asset, storageUrl: null };
+      })
+    );
+    
+    return assetsWithUrls;
   },
 });
 

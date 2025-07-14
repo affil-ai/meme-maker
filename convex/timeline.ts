@@ -23,9 +23,18 @@ export const getTimelineData = query({
             .collect(),
         ]);
         
+        // Resolve storage URL if the asset has a storageId
+        let mediaAssetWithUrl: any = mediaAsset;
+        if (mediaAsset && mediaAsset.storageId) {
+          const storageUrl = await ctx.storage.getUrl(mediaAsset.storageId);
+          mediaAssetWithUrl = { ...mediaAsset, storageUrl };
+        } else if (mediaAsset) {
+          mediaAssetWithUrl = { ...mediaAsset, storageUrl: null };
+        }
+        
         return {
           ...clip,
-          mediaAsset,
+          mediaAsset: mediaAssetWithUrl,
           keyframes,
         };
       })

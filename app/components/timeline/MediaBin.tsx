@@ -136,7 +136,7 @@ export default function MediaBin() {
   };
 
   const renderThumbnail = (item: MediaBinItem) => {
-    const mediaUrl = item.mediaUrlLocal || item.mediaUrlRemote;
+    const mediaUrl = item.mediaUrl;
     
     // Show icon for uploading items
     if (item.isUploading) {
