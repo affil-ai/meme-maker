@@ -1,5 +1,5 @@
 - Never run the "dev" script unless asked to
-- Always run "typecheck" and "lint" after at the end of all your tasks
+- Always run "typecheck" and "lint" at the end of all your tasks that modify code
 - Always use pnpm 
 - The path alias is ~ not @
 - Make sure to use the Context 7 MCP to view documentation on remotion: https://context7.com/remotion-dev/remotion/llms.txt

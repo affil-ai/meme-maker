@@ -5,7 +5,7 @@ import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import multer from 'multer';
-import type { TimelineDataItem } from '../components/timeline/types';
+import type { TimelineDataItem } from '../app/components/timeline/types';
 
 // The composition you want to render
 const compositionId = 'TimelineComposition';
@@ -13,7 +13,7 @@ const compositionId = 'TimelineComposition';
 // You only have to create a bundle once, and you may reuse it
 // for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
-  entryPoint: path.resolve('./app/videorender/index.ts'),
+  entryPoint: path.resolve('./lambda/index.ts'),
   // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });

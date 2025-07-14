@@ -20,7 +20,7 @@ export const useRenderer = () => {
     ) => {
       setIsRendering(true);
       setRenderStatus("Starting render...");
-      console.log("Render server base URL:", apiUrl("/render"));
+      console.log("Render server base URL:", "http://localhost:8000/render");
 
       try {
 
@@ -72,7 +72,7 @@ export const useRenderer = () => {
         setRenderStatus("Rendering video...");
 
         const response = await axios.post(
-          apiUrl("/render"),
+          "http://localhost:8000/render",
           {
             timelineData: timelineData,
             compositionWidth: compositionWidth,
