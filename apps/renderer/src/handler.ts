@@ -6,7 +6,7 @@ import path from 'path';
 import multer from 'multer';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import type { TimelineDataItem } from "@meme-maker/video-compositions";
+import type { TimelineDataItem } from "@meme-maker/video-compositions/types";
 
 const compositionId = 'TimelineComposition';
 let bundleLocation: string | null = null;
@@ -215,7 +215,7 @@ app.post('/clone-media', (req: Request, res: Response): void => {
 // Delete file endpoint
 app.delete('/media/:filename', (req: Request, res: Response): void => {
   try {
-    const filename = decodeURIComponent(req.params.filename);
+    const filename = decodeURIComponent(req.params.filename || '');
     const filePath = path.resolve('out', filename);
     
     // Security check

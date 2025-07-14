@@ -115,6 +115,9 @@ const AnimatedMediaItem: React.FC<{
   // If only one keyframe, use its properties directly
   if (sortedKeyframes.length === 1) {
     const kf = sortedKeyframes[0];
+    if (!kf) {
+      return null;
+    }
     console.log('📍 Single keyframe - using keyframe properties:', kf.properties);
     return (
       <AbsoluteFill

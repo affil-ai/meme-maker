@@ -190,7 +190,7 @@ app.post('/clone-media', (req, res) => {
 // Delete file endpoint
 app.delete('/media/:filename', (req, res) => {
     try {
-        const filename = decodeURIComponent(req.params.filename);
+        const filename = decodeURIComponent(req.params.filename || '');
         const filePath = path.resolve('out', filename);
         // Security check
         if (!filePath.startsWith(path.resolve('out'))) {

@@ -163,7 +163,7 @@ app.get('/render/:renderId', async (req: Request, res: Response) => {
     }
 
     const progress = await getRenderProgress({
-      renderId,
+      renderId: renderId || '',
       bucketName,
       functionName,
       region: region as AwsRegion,

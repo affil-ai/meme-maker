@@ -25,7 +25,7 @@ ENV/
 
 # Build outputs
 /build/
-/dist/
+dist/
 /.react-router/
 out/
 *.egg-info/
