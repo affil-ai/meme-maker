@@ -1,0 +1,38 @@
+{
+  "name": "renderer",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/videorender.ts",
+    "deploy": "pnpm run build && serverless deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@meme-maker/video-compositions": "workspace:*",
+    "@remotion/bundler": "4.0.323",
+    "@remotion/cli": "4.0.323",
+    "@remotion/lambda": "^4.0.323",
+    "@remotion/media-parser": "4.0.323",
+    "@remotion/renderer": "4.0.323",
+    "@types/cors": "^2.8.18",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remotion": "4.0.323",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^20",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "multer": "^2.0.1",
+    "serverless": "^4.17.1",
+    "serverless-plugin-typescript": "^2.1.5",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

@@ -40,7 +40,7 @@ async function deployRemotionLambda() {
     console.log('📦 Deploying Remotion site to S3...');
     const { serveUrl, siteName } = await deploySite({
       bucketName,
-      entryPoint: path.resolve(process.cwd(), 'lambda/index.ts'),
+      entryPoint: path.resolve(process.cwd(), 'apps/video-render/src/index.ts'),
       region: REGION,
       siteName: 'video-editor-site',
     });

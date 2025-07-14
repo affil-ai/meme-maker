@@ -1,0 +1,19 @@
+{
+  "name": "@meme-maker/backend",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./convex/_generated/api.js",
+  "types": "./convex/_generated/api.d.ts",
+  "scripts": {
+    "dev": "convex dev",
+    "deploy": "convex deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "convex": "^1.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5.8.3"
+  }
+}
