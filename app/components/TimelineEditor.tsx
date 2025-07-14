@@ -53,6 +53,7 @@ import { useRouter } from "next/navigation";
 export default function TimelineEditor() {
   // Project context
   const { project, setProjectId } = useProject();
+  const router = useRouter();
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,9 +62,6 @@ export default function TimelineEditor() {
 
   // Theme
   const { theme, setTheme } = useTheme();
-
-  // Navigation
-  const router = useRouter();
 
   // State for video dimensions
   const [width, setWidth] = useState<number>(1080);
@@ -395,7 +393,7 @@ export default function TimelineEditor() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setProjectId(null)}
+                onClick={() => router.push("/")}
                 className="h-7 px-2 text-xs gap-1"
               >
                 <FolderOpen className="h-3 w-3" />

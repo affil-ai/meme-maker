@@ -1,31 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { useRouter } from "next/navigation";
 import type { Id } from "../convex/_generated/dataModel";
 import { ProjectSelector } from "~/components/ProjectSelector";
-import { ProjectProvider } from "~/contexts/ProjectContext";
-import TimelineEditor from "~/components/TimelineEditor";
 
 export default function HomePage() {
-  const [selectedProjectId, setSelectedProjectId] = useState<Id<"projects"> | null>(null);
-  const selectedProject = useQuery(
-    api.projects.get,
-    selectedProjectId ? { projectId: selectedProjectId } : "skip"
-  );
+  const router = useRouter();
 
-  if (!selectedProjectId) {
-    return <ProjectSelector onSelectProject={setSelectedProjectId} />;
-  }
+  const handleSelectProject = (projectId: Id<"projects">) => {
+    router.push(`/project/${projectId}`);
+  };
 
-  return (
-    <ProjectProvider
-      projectId={selectedProjectId}
-      project={selectedProject || null}
-      setProjectId={setSelectedProjectId}
-    >
-      <TimelineEditor />
-    </ProjectProvider>
-  );
+  return <ProjectSelector onSelectProject={handleSelectProject} />;
 }
