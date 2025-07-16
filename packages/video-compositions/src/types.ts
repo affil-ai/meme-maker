@@ -103,6 +103,14 @@ export interface TimelineDataItem {
   })[];
 }
 
+export interface VideoData {
+  timeline: TimelineDataItem[];
+  videoDimensions: {
+    width: number;
+    height: number;
+  };
+}
+
 // Keyframe types
 export interface Keyframe {
   id: string;

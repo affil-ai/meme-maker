@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./styles/globals.css";
 import Providers from "./providers";
 
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",

@@ -1,6 +1,5 @@
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import serverless from 'serverless-http';
 import path from 'path';
 import express, { type Request, type Response } from 'express';
 import cors from 'cors';
@@ -14,7 +13,7 @@ const compositionId = 'TimelineComposition';
 // You only have to create a bundle once, and you may reuse it
 // for multiple renders that you can parametrize using input props.
 const bundleLocation = await bundle({
-  entryPoint: path.resolve('./lambda/index.ts'),
+  entryPoint: path.resolve('./src/index.ts'),
   // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
@@ -197,7 +196,3 @@ app.listen(port, () => {
   console.log(`   - 15-minute timeout for longer videos`);
   console.log(`📂 Media files are served from: ${path.resolve('out')}`);
 });
-
-
-
-export const handler = serverless(app);

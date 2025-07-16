@@ -1,5 +1,7 @@
 export const getRenderApiUrl = (): string => {
-  // Always use Lambda function
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:8000';
+  }
   return 'https://boibmmvm92.execute-api.us-east-1.amazonaws.com';
 };
 

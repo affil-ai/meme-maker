@@ -5,7 +5,6 @@
   "main": "./convex/_generated/api.js",
   "types": "./convex/_generated/api.d.ts",
   "scripts": {
-    "dev": "convex dev",
     "deploy": "convex deploy",
     "typecheck": "tsc --noEmit"
   },

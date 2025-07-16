@@ -39,8 +39,25 @@ export const useTimeline = () => {
   
   // Convex mutations
   const createClip = useMutation(api.timeline.createClipFromDrop);
-  const updateClipMutation = useMutation(api.timelineClips.update);
-  const updateClip = useSingleFlight(updateClipMutation);
+  const updateClipMutation = useMutation(api.timelineClips.update).withOptimisticUpdate(
+    (localStore, args) => {
+      const { clipId, ...updates } = args;
+      if (!projectId) return;
+      const timelineData = localStore.getQuery(api.timeline.getTimelineData, { projectId });
+      if (!timelineData) return;
+      const clip = timelineData.clips.find(c => c._id === clipId);
+      if (!clip) return;
+      const updatedClip = {
+        ...clip,
+        ...updates,
+      };
+      localStore.setQuery(api.timeline.getTimelineData, { projectId }, {
+        ...timelineData,
+        clips: timelineData.clips.map(c => c._id === clipId ? updatedClip : c),
+      });
+    }
+  );
+  const updateClip = updateClipMutation;
   const deleteClip = useMutation(api.timelineClips.remove);
   const splitClipMutation = useMutation(api.timeline.splitClip);
   const moveClipToTrack = useMutation(api.timeline.moveClipToTrack);
@@ -48,6 +65,7 @@ export const useTimeline = () => {
   const createKeyframe = useMutation(api.keyframes.create);
   const updateKeyframe = useMutation(api.keyframes.update);
   const deleteKeyframe = useMutation(api.keyframes.remove);
+  const updateMediaAsset = useMutation(api.mediaAssets.update);
   
   const getPixelsPerSecond = useCallback(() => {
     return PIXELS_PER_SECOND * zoomLevel;
@@ -183,6 +201,7 @@ export const useTimeline = () => {
     const clipId = updatedScrubber.id as Id<"timelineClips">;
     
     try {
+      // Update the clip properties
       await updateClip({
         clipId,
         trackIndex: updatedScrubber.y,
@@ -201,11 +220,21 @@ export const useTimeline = () => {
         trimStart: updatedScrubber.trimBefore ? updatedScrubber.trimBefore / FPS : undefined,
         trimEnd: updatedScrubber.trimAfter ? updatedScrubber.trimAfter / FPS : undefined,
       });
+      
+      // If this is a text media type and text properties have been updated, 
+      // update the media asset as well
+      if (updatedScrubber.mediaType === 'text' && updatedScrubber.text) {
+        const mediaAssetId = updatedScrubber.sourceMediaBinId as Id<"mediaAssets">;
+        await updateMediaAsset({
+          assetId: mediaAssetId,
+          textProperties: updatedScrubber.text,
+        });
+      }
     } catch (error) {
       console.error("Failed to update clip:", error);
       toast.error("Failed to update clip");
     }
-  }, [projectId, updateClip, getPixelsPerSecond]);
+  }, [projectId, updateClip, updateMediaAsset, getPixelsPerSecond]);
   
   const handleDeleteScrubber = useCallback(async (scrubberId: string) => {
     const clipId = scrubberId as Id<"timelineClips">;

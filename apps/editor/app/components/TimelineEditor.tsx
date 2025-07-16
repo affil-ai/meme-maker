@@ -133,7 +133,6 @@ export default function TimelineEditor() {
   const handlePartialUpdateScrubber = useCallback((id: string, updates: Partial<ScrubberState>) => {
     const scrubber = getAllScrubbers().find(s => s.id === id);
     if (scrubber) {
-      console.log("Updating scrubber", id, updates);
       handleUpdateScrubber({ ...scrubber, ...updates });
     }
   }, [getAllScrubbers, handleUpdateScrubber]);
@@ -477,7 +476,7 @@ export default function TimelineEditor() {
 
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Panel - Media Bin & Tools */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
+        <ResizablePanel defaultSize={20} minSize={0} maxSize={35}>
           <div className="h-full border-r border-border">
             <LeftPanel
               mediaBinItems={mediaBinItems}
