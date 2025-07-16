@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -29,8 +28,6 @@ interface TextEditorProps {
 }
 
 export default function TextEditor({ onAddText }: TextEditorProps) {
-  const router = useRouter();
-
   const [textContent, setTextContent] = useState("Hello World");
   const [fontSize, setFontSize] = useState(48);
   const [fontFamily, setFontFamily] = useState("Comic Sans MS");
@@ -50,7 +47,13 @@ export default function TextEditor({ onAddText }: TextEditorProps) {
         textAlign,
         fontWeight
       );
-      router.push("/media-bin");
+      // Reset form to default values
+      setTextContent("Hello World");
+      setFontSize(48);
+      setFontFamily("Comic Sans MS");
+      setColor("#000000");
+      setTextAlign("center");
+      setFontWeight("normal");
     }
   };
 

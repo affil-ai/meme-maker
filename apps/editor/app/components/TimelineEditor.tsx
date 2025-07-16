@@ -213,9 +213,18 @@ export default function TimelineEditor() {
       toast.error("Timeline is empty");
       return;
     }
-    console.log(JSON.stringify(getTimelineData(), null, 2));
-    toast.success("Timeline data logged to console");
-  }, [getTimelineData, timelineData]);
+    const timelineDataWithDimensions = {
+      ...getTimelineData(),
+      videoDimensions: {
+        width,
+        height,
+      }
+    };
+    const dataString = JSON.stringify(timelineDataWithDimensions, null, 2);
+    console.log(dataString);
+    window.navigator.clipboard.writeText(dataString);
+    toast.success("Timeline data logged to console and copied to clipboard");
+  }, [getTimelineData, timelineData, width, height, isAutoSize]);
 
   const handleWidthChange = useCallback((newWidth: number) => {
     setWidth(newWidth);
@@ -228,10 +237,6 @@ export default function TimelineEditor() {
   const handleAutoSizeChange = useCallback((auto: boolean) => {
     setIsAutoSize(auto);
   }, []);
-
-  const handleAddTextClick = useCallback(() => {
-    router.push("/text-editor");
-  }, [router]);
 
   const handleAddTrackClick = useCallback(() => {
     handleAddTrack();

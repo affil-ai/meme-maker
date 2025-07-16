@@ -127,6 +127,7 @@ export const useTimeline = () => {
         id: scrubber.id,
         mediaType: scrubber.mediaType,
         mediaUrl: scrubber.mediaUrl,
+        mediaName: scrubber.name,
         media_width: scrubber.media_width,
         media_height: scrubber.media_height,
         text: scrubber.text,
