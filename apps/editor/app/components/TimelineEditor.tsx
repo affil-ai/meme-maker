@@ -213,8 +213,29 @@ export default function TimelineEditor() {
       toast.error("Timeline is empty");
       return;
     }
+    
+    // Transform the timeline data to use consistent coordinate naming
+    const transformedData = getTimelineData().map(track => ({
+      ...track,
+      scrubbers: track.scrubbers.map(scrubber => {
+        const { left_player, top_player, width_player, height_player, ...rest } = scrubber;
+        return {
+          ...rest,
+          // Rename player coordinates to match keyframe property names
+          position: {
+            x: left_player,
+            y: top_player
+          },
+          size: {
+            width: width_player,
+            height: height_player
+          }
+        };
+      })
+    }));
+    
     const timelineDataWithDimensions = {
-      ...getTimelineData(),
+      timeline: transformedData,
       videoDimensions: {
         width,
         height,
@@ -224,7 +245,7 @@ export default function TimelineEditor() {
     console.log(dataString);
     window.navigator.clipboard.writeText(dataString);
     toast.success("Timeline data logged to console and copied to clipboard");
-  }, [getTimelineData, timelineData, width, height, isAutoSize]);
+  }, [getTimelineData, timelineData, width, height]);
 
   const handleWidthChange = useCallback((newWidth: number) => {
     setWidth(newWidth);
