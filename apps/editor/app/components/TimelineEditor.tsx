@@ -133,6 +133,7 @@ export default function TimelineEditor() {
   const handlePartialUpdateScrubber = useCallback((id: string, updates: Partial<ScrubberState>) => {
     const scrubber = getAllScrubbers().find(s => s.id === id);
     if (scrubber) {
+      console.log("Updating scrubber", id, updates);
       handleUpdateScrubber({ ...scrubber, ...updates });
     }
   }, [getAllScrubbers, handleUpdateScrubber]);

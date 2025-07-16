@@ -1,6 +1,6 @@
 import { useCallback, useState, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { useDebouncedCallback } from "use-debounce";
+import { useSingleFlight } from "./useSingleFlight";
 import { api } from "@meme-maker/backend";
 import type { Id } from "@meme-maker/backend/convex/_generated/dataModel";
 import { useProject } from "~/contexts/ProjectContext";
@@ -39,7 +39,8 @@ export const useTimeline = () => {
   
   // Convex mutations
   const createClip = useMutation(api.timeline.createClipFromDrop);
-  const updateClip = useMutation(api.timelineClips.update);
+  const updateClipMutation = useMutation(api.timelineClips.update);
+  const updateClip = useSingleFlight(updateClipMutation);
   const deleteClip = useMutation(api.timelineClips.remove);
   const splitClipMutation = useMutation(api.timeline.splitClip);
   const moveClipToTrack = useMutation(api.timeline.moveClipToTrack);
