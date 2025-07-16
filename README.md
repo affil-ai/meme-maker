@@ -1,40 +1,50 @@
 # Video Editor - Open Source Video Editing Platform
 
-A modern video editor built with React and Remotion. This open-source alternative to tools like CapCut and Canva provides non-linear video editing capabilities.
+A modern video editor built with React and Remotion, structured as a Turborepo monorepo. This open-source alternative to tools like CapCut and Canva provides non-linear video editing capabilities with a scalable architecture.
 
 ## 🏗️ System Architecture
 
 ### Technology Stack
 
-**Frontend:**
-- **React Router v7** - Modern React framework with SSR support
+**Frontend (apps/editor):**
+- **Next.js 15** - React framework with App Router
 - **React 19** - Latest React version
 - **TypeScript** - Full type safety
-- **Remotion** - Core video rendering engine
-- **Tailwind CSS** - Utility-first styling
+- **Remotion Player** - Video preview and playback
+- **Tailwind CSS v4** - Utility-first styling
 - **Radix UI** - Headless UI components
-- **Vite** - Lightning-fast build tool
+- **Framer Motion** - Animations
 
-**Backend:**
-- **React Router v7** - Server-side rendering and API routes
-- **Remotion Renderer** - Video processing integrated into React Router
-- **Docker** - Containerized deployment
-- **Nginx** - Reverse proxy
+**Backend Services:**
+- **Convex** - Real-time backend (packages/backend)
+- **Remotion Renderer** - Video processing service (apps/renderer)
+- **Serverless Framework** - AWS Lambda deployment
+- **Express** - API server for rendering
 
-### Project Structure
+**Shared Packages:**
+- **video-compositions** - Shared Remotion compositions
+- **backend** - Convex schema and functions
+
+### Monorepo Structure
 
 ```
 videoeditor/
-├── app/                    # Frontend React application
-│   ├── components/         # React components
-│   │   ├── timeline/      # Timeline editing UI
-│   │   ├── editor/       # Main editor components
-│   │   └── ui/           # Reusable UI components
-│   ├── hooks/            # Custom React hooks
-│   ├── utils/            # Utility functions
-│   └── routes/           # Application routes
-├── public/               # Static assets
-└── docker/              # Docker configurations
+├── apps/
+│   ├── editor/             # Next.js video editor application
+│   │   ├── app/           # App Router pages and components
+│   │   ├── components/    # React components
+│   │   ├── hooks/         # Custom React hooks
+│   │   └── utils/         # Utility functions
+│   └── renderer/          # Remotion rendering service
+│       └── src/           # Rendering handlers and API
+├── packages/
+│   ├── backend/           # Convex backend
+│   │   └── convex/        # Database schema and functions
+│   └── video-compositions/# Shared video components
+│       └── src/           # Reusable Remotion compositions
+├── turbo.json             # Turborepo configuration
+├── pnpm-workspace.yaml    # PNPM workspace config
+└── package.json           # Root package scripts
 ```
 
 ## 🎯 Core Features
@@ -109,8 +119,9 @@ Timeline = {
 
 ### Prerequisites
 - Node.js 18+
-- pnpm package manager
-- Docker & Docker Compose (for production)
+- pnpm 10.13.1+ (package manager)
+- Convex account (for backend)
+- AWS account (optional, for Lambda deployment)
 
 ### Development Setup
 
@@ -122,36 +133,86 @@ cd videoeditor
 
 2. **Install dependencies**
 ```bash
-# Frontend
+# Install all workspace dependencies
 pnpm install
-
 ```
 
-3. **Start development server**
+3. **Set up environment variables**
 ```bash
+# Create .env files in necessary packages
+# apps/editor/.env.local - for Next.js environment
+# packages/backend/.env.local - for Convex credentials
+```
+
+4. **Start development servers**
+```bash
+# Start all dev servers (editor, backend, renderer)
 pnpm dev
+
+# Or start specific apps:
+pnpm --filter editor dev      # Video editor UI
+pnpm --filter backend dev     # Convex backend
+pnpm --filter renderer dev    # Rendering service
 ```
 
-### Production Deployment
-
-Use Docker Compose for production deployment:
+### Build & Deploy
 
 ```bash
-docker-compose up -d
+# Build all packages
+pnpm build
+
+# Type checking
+pnpm typecheck
+
+# Linting
+pnpm lint
+
+# Deploy Convex backend
+pnpm --filter backend deploy
+
+# Deploy renderer to AWS Lambda
+pnpm deploy:renderer
 ```
 
-This starts:
-- Nginx reverse proxy (port 80)
-- React frontend
-- Video rendering service
+## 📦 Packages Overview
+
+### apps/editor
+The main Next.js application providing the video editing interface. Features include:
+- Timeline-based video editing
+- Media bin with drag-and-drop
+- Real-time preview with Remotion Player
+- Keyframe animation support
+- Project management with Convex
+
+### apps/renderer
+Serverless video rendering service that can be deployed to AWS Lambda:
+- Express API for rendering requests
+- Remotion CLI integration
+- Serverless framework configuration
+- Support for batch rendering
+
+### packages/backend
+Convex backend providing real-time data synchronization:
+- Project and timeline state management
+- File storage integration
+- Render job queue
+- Media asset management
+- Command history for undo/redo
+
+### packages/video-compositions
+Shared Remotion components used by both editor and renderer:
+- Video player composition
+- Drag-and-drop video component
+- Type definitions for timeline data
+- Reusable video effects
 
 ## 🎥 How Video Rendering Works
 
 The video rendering uses Remotion, a React-based video creation framework:
 
-1. **Composition**: Video is defined as React components
-2. **Timeline mapping**: Scrubbers map to Remotion sequences
-3. **Rendering**: React Router action handles video export
+1. **Composition**: Video is defined as React components in video-compositions package
+2. **Timeline mapping**: Timeline scrubbers map to Remotion sequences
+3. **Rendering**: Renderer service processes the composition
 4. **Output**: Final video with all edits applied
 
 ## 🔄 Development Workflow
@@ -169,31 +230,41 @@ The video rendering uses Remotion, a React-based video creation framework:
 - TypeScript for type safety
 - Tailwind for consistent styling
 
-## 🚧 Current Limitations
+## 🚧 Current Status
 
-1. **No state persistence** - Changes lost on reload
-2. **No undo/redo** - Direct state manipulation only
-3. **Props drilling** - Can become complex in deep hierarchies
-4. **Development CORS** - Needs configuration for production
+### Implemented Features
+- ✅ Monorepo architecture with Turborepo
+- ✅ Real-time backend with Convex
+- ✅ Timeline-based editing interface
+- ✅ Keyframe animation support
+- ✅ Serverless rendering with AWS Lambda
+- ✅ Project management and persistence
+- ✅ Undo/redo with command history
 
-## 🔮 Future Enhancements
+### Known Limitations
+1. **Performance** - Large projects may experience lag
+2. **Browser Support** - Optimized for Chrome/Edge
+3. **Mobile** - Desktop-only interface currently
 
-1. **State Management**
-   - Add persistence (localStorage/IndexedDB)
-   - Implement undo/redo with command pattern
-   - Consider Context API for deeply nested components
+## 🔮 Roadmap
 
-2. **Timeline Features**
-   - Transitions and effects
-   - Audio waveform visualization
-   - Keyframe animation
-   - Advanced trimming tools
+### Short Term
+- [ ] Audio waveform visualization
+- [ ] More transition effects
+- [ ] Export presets (resolution, format)
+- [ ] Collaborative editing
 
-3. **Performance**
-   - Virtual scrolling for long timelines
-   - Web Workers for heavy computations
-   - Optimistic UI updates
-   - Lazy loading of media
+### Medium Term
+- [ ] Plugin system for custom effects
+- [ ] AI-powered features (auto-cut, scene detection)
+- [ ] Mobile responsive design
+- [ ] Advanced color grading
+
+### Long Term
+- [ ] Desktop app with Electron
+- [ ] GPU acceleration for rendering
+- [ ] Real-time collaboration
+- [ ] Template marketplace
 
 ## 🤝 Contributing
 
