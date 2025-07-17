@@ -27,6 +27,45 @@ export const listByProject = query({
   },
 });
 
+// Get all non-text media assets globally
+export const listAllNonText = query({
+  args: {},
+  handler: async (ctx) => {
+    const assets = await ctx.db
+      .query("mediaAssets")
+      .filter((q) => q.neq(q.field("mediaType"), "text"))
+      .collect();
+    
+    // Resolve storage URLs for assets that have storageId
+    const assetsWithUrls = await Promise.all(
+      assets.map(async (asset) => {
+        if (asset.storageId) {
+          const storageUrl = await ctx.storage.getUrl(asset.storageId);
+          return { ...asset, storageUrl };
+        }
+        return { ...asset, storageUrl: null };
+      })
+    );
+    
+    return assetsWithUrls;
+  },
+});
+
+// Get only text media assets for a project
+export const listTextByProject = query({
+  args: { projectId: v.id("projects") },
+  handler: async (ctx, args) => {
+    const assets = await ctx.db
+      .query("mediaAssets")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .filter((q) => q.eq(q.field("mediaType"), "text"))
+      .collect();
+    
+    // Text assets don't have storageId, but add storageUrl: null for consistency
+    return assets.map(asset => ({ ...asset, storageUrl: null }));
+  },
+});
+
 // Get a single media asset
 export const get = query({
   args: { assetId: v.id("mediaAssets") },

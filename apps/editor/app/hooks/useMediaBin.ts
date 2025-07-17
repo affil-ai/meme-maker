@@ -98,10 +98,17 @@ export const useMediaBin = (handleDeleteScrubbersByMediaBinId: (mediaBinId: stri
   } | null>(null);
   
   // Convex queries
-  const mediaAssets = useQuery(
-    api.mediaAssets.listByProject,
+  // Get all non-text media assets globally
+  const nonTextMediaAssets = useQuery(api.mediaAssets.listAllNonText);
+  
+  // Get text media assets for current project only
+  const textMediaAssets = useQuery(
+    api.mediaAssets.listTextByProject,
     projectId ? { projectId } : "skip"
   );
+  
+  // Combine both queries
+  const mediaAssets = [...(nonTextMediaAssets || []), ...(textMediaAssets || [])];
   
   // Convex mutations
   const createMediaAsset = useMutation(api.mediaAssets.create);
