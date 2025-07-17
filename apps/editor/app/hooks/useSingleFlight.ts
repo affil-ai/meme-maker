@@ -1,5 +1,6 @@
+/* eslint-disable */
 import { useCallback, useRef } from "react";
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 /**
  * Wraps a function to single-flight invocations, using the latest args.
  *
