@@ -243,6 +243,7 @@ export function TimelineComposition({
         case "text":
           content = (
             <AnimatedMediaItem
+              key={`${scrubber.id}-${scrubber.left_player}-${scrubber.top_player}-${scrubber.width_player}-${scrubber.height_player}`}
               scrubber={scrubber}
             >
               <div
@@ -278,6 +279,7 @@ export function TimelineComposition({
           const imageUrl = scrubber.mediaUrl;
           content = (
             <AnimatedMediaItem
+              key={`${scrubber.id}-${scrubber.left_player}-${scrubber.top_player}-${scrubber.width_player}-${scrubber.height_player}`}
               scrubber={scrubber}
             >
               <Img src={imageUrl!} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -289,6 +291,7 @@ export function TimelineComposition({
           const videoUrl = scrubber.mediaUrl;
           content = (
             <AnimatedMediaItem
+              key={`${scrubber.id}-${scrubber.left_player}-${scrubber.top_player}-${scrubber.width_player}-${scrubber.height_player}`}
               scrubber={scrubber}
             >
               <Video 

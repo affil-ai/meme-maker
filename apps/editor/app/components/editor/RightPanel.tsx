@@ -425,9 +425,9 @@ export default function RightPanel({
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <Tabs defaultValue="chat" className="flex-1 flex flex-col">
-        <TabsList className="w-full justify-start rounded-none border-b">
+    <div className="h-full flex flex-col overflow-hidden">
+      <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="w-full justify-start rounded-none border-b shrink-0">
           <TabsTrigger value="properties" className="gap-1.5">
             <Settings2 className="h-3.5 w-3.5" />
             Properties
@@ -438,11 +438,11 @@ export default function RightPanel({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="properties" className="flex-1 p-4 overflow-y-auto">
+        <TabsContent value="properties" className="flex-1 p-4 overflow-y-auto mt-0">
           {renderPropertiesContent()}
         </TabsContent>
 
-        <TabsContent value="chat" className="p-2">
+        <TabsContent value="chat" className="flex-1 p-2 overflow-hidden mt-0">
           <ChatWindow />
         </TabsContent>
       </Tabs>
