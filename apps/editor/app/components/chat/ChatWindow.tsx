@@ -105,7 +105,7 @@ export default function ChatWindow() {
                             <div
                               key={`${message.id}-text-${partIndex}`}
                               className={cn(
-                                "px-4 py-2 rounded-2xl text-sm markdown break-words",
+                                "px-4 py-2 rounded-2xl text-sm markdown break-all",
                                 message.role === "user"
                                   ? "bg-primary text-primary-foreground"
                                   : "bg-muted text-white"
