@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { useCurrentScale, Sequence } from "remotion";
+import { useCurrentScale, Sequence, useCurrentFrame, interpolate } from "remotion";
 import {
   FPS,
   PIXELS_PER_SECOND,
@@ -162,6 +162,7 @@ export const SelectionOutline: React.FC<{
 }) => {
   // console.log("SelectionOutline", JSON.stringify(ScrubberState, null, 2));
   const scale = useCurrentScale();
+  const frame = useCurrentFrame();
   const scaledBorder = Math.ceil(2 / scale);
   const newScrubberStateRef = React.useRef<ScrubberState>(ScrubberState);
   
@@ -181,13 +182,78 @@ export const SelectionOutline: React.FC<{
   }, []);
 
   const isSelected = ScrubberState.id === selectedItem;
+  
+  // Calculate animated position and size based on keyframes
+  const animatedValues = useMemo(() => {
+    const baseProperties = {
+      x: ScrubberState.left_player,
+      y: ScrubberState.top_player,
+      width: ScrubberState.width_player,
+      height: ScrubberState.height_player,
+    };
+    
+    // If no keyframes or not enough for animation, use base properties
+    if (!ScrubberState.keyframes || ScrubberState.keyframes.length < 2) {
+      return baseProperties;
+    }
+    
+    // Sort keyframes by time
+    const sortedKeyframes = [...ScrubberState.keyframes].sort((a, b) => a.time - b.time);
+    
+    // Create frame ranges for interpolation
+    const frameRanges = sortedKeyframes.map((kf) => Math.round(kf.time * FPS));
+    
+    // Calculate current time in seconds based on frame
+    const currentTimeInSeconds = frame / FPS;
+    // Calculate scrubber start time from left position
+    const scrubberStartTime = ScrubberState.left / PIXELS_PER_SECOND;
+    const relativeTime = currentTimeInSeconds - scrubberStartTime;
+    const relativeFrame = relativeTime * FPS;
+    
+    // Interpolate each property
+    const animatedX = interpolate(
+      relativeFrame,
+      frameRanges,
+      sortedKeyframes.map((kf) => kf.properties.x ?? baseProperties.x),
+      { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    );
+    
+    const animatedY = interpolate(
+      relativeFrame,
+      frameRanges,
+      sortedKeyframes.map((kf) => kf.properties.y ?? baseProperties.y),
+      { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    );
+    
+    const animatedWidth = interpolate(
+      relativeFrame,
+      frameRanges,
+      sortedKeyframes.map((kf) => kf.properties.width ?? baseProperties.width),
+      { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    );
+    
+    const animatedHeight = interpolate(
+      relativeFrame,
+      frameRanges,
+      sortedKeyframes.map((kf) => kf.properties.height ?? baseProperties.height),
+      { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    );
+    
+    return {
+      x: animatedX,
+      y: animatedY,
+      width: animatedWidth,
+      height: animatedHeight,
+    };
+  }, [ScrubberState, frame]);
+  
   // console.log("isSelected", isSelected);
   const style: React.CSSProperties = useMemo(() => {
     return {
-      width: ScrubberState.width_player,
-      height: ScrubberState.height_player,
-      left: ScrubberState.left_player,
-      top: ScrubberState.top_player,
+      width: animatedValues.width,
+      height: animatedValues.height,
+      left: animatedValues.x,
+      top: animatedValues.y,
       position: "absolute",
       outline:
         (hovered && !isDragging) || isSelected
@@ -196,7 +262,7 @@ export const SelectionOutline: React.FC<{
       userSelect: "none",
       touchAction: "none",
     };
-  }, [ScrubberState, hovered, isDragging, isSelected, scaledBorder]);
+  }, [animatedValues, hovered, isDragging, isSelected, scaledBorder]);
 
   const startDragging = useCallback(
     (e: PointerEvent | React.MouseEvent) => {
@@ -204,9 +270,9 @@ export const SelectionOutline: React.FC<{
       const initialX = e.clientX;
       const initialY = e.clientY;
       
-      // Store initial positions from current state
-      const initialLeftPlayer = ScrubberState.left_player;
-      const initialTopPlayer = ScrubberState.top_player;
+      // Use animated positions as starting point if available
+      const initialLeftPlayer = animatedValues.x;
+      const initialTopPlayer = animatedValues.y;
 
       const onPointerMove = (pointerMoveEvent: PointerEvent) => {
         const offsetX = (pointerMoveEvent.clientX - initialX) / scale;
@@ -250,7 +316,7 @@ export const SelectionOutline: React.FC<{
         once: true,
       });
     },
-    [ScrubberState, scale, changeItem, selectedItem, setSelectedItem]
+    [animatedValues, scale, changeItem, selectedItem, setSelectedItem]
   );
 
   const onPointerDown = useCallback(
@@ -278,22 +344,22 @@ export const SelectionOutline: React.FC<{
       {isSelected ? (
         <>
           <ResizeHandle
-            ScrubberState={ScrubberState}
+            ScrubberState={{...ScrubberState, left_player: animatedValues.x, top_player: animatedValues.y, width_player: animatedValues.width, height_player: animatedValues.height}}
             setItem={changeItem}
             type="top-left"
           />
           <ResizeHandle
-            ScrubberState={ScrubberState}
+            ScrubberState={{...ScrubberState, left_player: animatedValues.x, top_player: animatedValues.y, width_player: animatedValues.width, height_player: animatedValues.height}}
             setItem={changeItem}
             type="top-right"
           />
           <ResizeHandle
-            ScrubberState={ScrubberState}
+            ScrubberState={{...ScrubberState, left_player: animatedValues.x, top_player: animatedValues.y, width_player: animatedValues.width, height_player: animatedValues.height}}
             setItem={changeItem}
             type="bottom-left"
           />
           <ResizeHandle
-            ScrubberState={ScrubberState}
+            ScrubberState={{...ScrubberState, left_player: animatedValues.x, top_player: animatedValues.y, width_player: animatedValues.width, height_player: animatedValues.height}}
             setItem={changeItem}
             type="bottom-right"
           />
