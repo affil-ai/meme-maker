@@ -597,7 +597,7 @@ export default function TimelineEditor() {
             <ResizableHandle withHandle />
 
             {/* Timeline Area */}
-            <ResizablePanel defaultSize={35} minSize={25}>
+            <ResizablePanel defaultSize={40} minSize={25}>
               <div className="h-full flex flex-col bg-muted/20">
                 {/* Compact Timeline Header */}
                 <div className="h-8 border-b border-border/50 bg-muted/30 flex items-center justify-between px-3 shrink-0">
@@ -732,7 +732,7 @@ export default function TimelineEditor() {
         <ResizableHandle withHandle />
 
         {/* Right Panel - Properties */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={35}>
+        <ResizablePanel defaultSize={30} minSize={15} maxSize={50}>
           <div className="h-full border-l border-border" data-panel-id="right-panel">
             <RightPanel
               selectedScrubber={selectedScrubberId ? getAllScrubbers().find(s => s.id === selectedScrubberId) || null : null}

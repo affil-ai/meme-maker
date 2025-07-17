@@ -48,7 +48,9 @@ export const tools: ToolSet = {
             if (!project) {
                 return 'Project not found';
             }
-            return `Project ${projectId} described`;
+            return project.clips;
         },
     }),
+
+
 }

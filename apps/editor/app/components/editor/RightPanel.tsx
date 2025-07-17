@@ -426,7 +426,7 @@ export default function RightPanel({
 
   return (
     <div className="h-full flex flex-col">
-      <Tabs defaultValue="properties" className="flex-1 flex flex-col">
+      <Tabs defaultValue="chat" className="flex-1 flex flex-col">
         <TabsList className="w-full justify-start rounded-none border-b">
           <TabsTrigger value="properties" className="gap-1.5">
             <Settings2 className="h-3.5 w-3.5" />
