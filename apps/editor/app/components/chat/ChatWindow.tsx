@@ -116,6 +116,7 @@ export default function ChatWindow() {
                           );
                         case "tool-editClip":
                         case "tool-getTimelineData":
+                        case "tool-createKeyframe":
                           return (
                             <div
                               key={`${message.id}-editClip-${partIndex}`}

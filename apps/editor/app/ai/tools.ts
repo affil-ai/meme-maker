@@ -52,5 +52,71 @@ export const tools: ToolSet = {
         },
     }),
 
+    createKeyframe: tool({
+        description: "Create a keyframe",
+        inputSchema: z.object({
+            clipId: z.string(),
+            keyframe: z.object({
+                time: z.number(),
+                properties: z.object({
+                    x: z.number(),
+                    y: z.number(),
+                    width: z.number(),
+                    height: z.number(),
+                    rotation: z.number(),
+                    opacity: z.number(),
+                    scale: z.number(),
+                })
+            }),
+        }),
+        execute: async ({ clipId, keyframe }) => {
+            const id = clipId as Id<"timelineClips">;
+            const clip = await fetchQuery(api.timelineClips.get, { clipId: id });
+            if (!clip) {
+                return 'Clip not found';    
+            }
+            await fetchMutation(api.keyframes.create, {
+                clipId: id,
+                time: keyframe.time,
+                properties: keyframe.properties,
+            });
+            return 'Keyframe created';
+        },
+    }),
 
+    updateKeyframe: tool({
+        description: "Update a keyframe",
+        inputSchema: z.object({
+            keyframeId: z.string(),
+            properties: z.object({
+                x: z.number(),
+                y: z.number(),
+                width: z.number(),
+                height: z.number(),
+                rotation: z.number(),
+                opacity: z.number(),
+                scale: z.number(),
+            }),
+        }),
+        execute: async ({ keyframeId, properties }) => {    
+            const id = keyframeId as Id<"keyframes">;
+            await fetchMutation(api.keyframes.update, {
+                keyframeId: id,
+                properties: properties,
+            }); 
+            return 'Keyframe updated';
+        },
+    }),
+
+    deleteKeyframe: tool({
+        description: "Delete a keyframe",
+        inputSchema: z.object({
+            keyframeId: z.string(),
+        }),
+        execute: async ({ keyframeId }) => {
+            const id = keyframeId as Id<"keyframes">;
+            await fetchMutation(api.keyframes.remove, { keyframeId: id });
+            return 'Keyframe deleted';
+        },
+    }),
 }
