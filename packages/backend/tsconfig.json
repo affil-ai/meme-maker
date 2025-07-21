@@ -10,8 +10,9 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowJs": true,
+    "jsx": "react-jsx",
     "noEmit": true
   },
-  "include": ["convex/**/*", "src/**/*"],
+  "include": ["convex/**/*", "src/**/*", "../../apps/editor/app/trpc/query-client.ts", "../../apps/editor/app/trpc/react.tsx"],
   "exclude": ["node_modules"]
 }

@@ -1,12 +1,10 @@
 import { useCallback, useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@meme-maker/backend";
-import type { Id } from "@meme-maker/backend/convex/_generated/dataModel";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useProject } from "~/contexts/ProjectContext";
 import { useConvexFileUpload } from "./useConvexFileUpload";
 import type { MediaBinItem } from "@meme-maker/video-compositions";
-import { generateUUID } from "~/utils/uuid";
 import { toast } from "sonner";
+import { useTRPC } from "~/trpc/react";
 
 // Helper to get media metadata
 const getMediaMetadata = (file: File, mediaType: "video" | "image" | "audio"): Promise<{
@@ -87,6 +85,7 @@ const getMediaMetadata = (file: File, mediaType: "video" | "image" | "audio"): P
 };
 
 export const useMediaBin = (handleDeleteScrubbersByMediaBinId: (mediaBinId: string) => void) => {
+  const trpc = useTRPC();
   const { projectId } = useProject();
   const { uploadFile } = useConvexFileUpload();
   
@@ -99,7 +98,7 @@ export const useMediaBin = (handleDeleteScrubbersByMediaBinId: (mediaBinId: stri
   
   // Convex queries
   // Get all non-text media assets globally
-  const nonTextMediaAssets = useQuery(api.mediaAssets.listAllNonText);
+  const nonTextMediaAssets = useQuery(trpc.mediaAssets.listAllNonText);
   
   // Get text media assets for current project only
   const textMediaAssets = useQuery(

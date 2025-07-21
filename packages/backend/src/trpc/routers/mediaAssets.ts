@@ -8,35 +8,13 @@ import {
   updateMediaAsset,
   deleteMediaAsset,
   deleteMediaAssets,
-} from "~/api/mediaAssets";
-
-const mediaTypeEnum = z.enum(["video", "image", "audio", "text"]);
-const uploadStatusEnum = z.enum(["uploading", "processing", "completed", "failed"]);
+  insertMediaAssetSchema,
+  mediaTypeEnum,
+} from "../../api/mediaAssets";
 
 export const mediaAssetsRouter = createTRPCRouter({
   create: publicProcedure
-    .input(
-      z.object({
-        projectId: z.string().uuid(),
-        name: z.string(),
-        mediaType: mediaTypeEnum,
-        fileKey: z.string().optional(),
-        thumbnailKey: z.string().optional(),
-        width: z.number().int(),
-        height: z.number().int(),
-        duration: z.number(),
-        textProperties: z.object({
-          textContent: z.string(),
-          fontSize: z.number(),
-          fontFamily: z.string(),
-          color: z.string(),
-          textAlign: z.enum(["left", "center", "right"]),
-          fontWeight: z.enum(["normal", "bold"]),
-        }).optional(),
-        uploadProgress: z.number().int().min(0).max(100).optional(),
-        uploadStatus: uploadStatusEnum.default("uploading"),
-      })
-    )
+    .input(insertMediaAssetSchema)
     .mutation(async ({ input }) => {
       return await createMediaAsset(input);
     }),
@@ -72,25 +50,7 @@ export const mediaAssetsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().uuid(),
-        data: z.object({
-          name: z.string().optional(),
-          mediaType: mediaTypeEnum.optional(),
-          fileKey: z.string().optional(),
-          thumbnailKey: z.string().optional(),
-          width: z.number().int().optional(),
-          height: z.number().int().optional(),
-          duration: z.number().optional(),
-          textProperties: z.object({
-            textContent: z.string(),
-            fontSize: z.number(),
-            fontFamily: z.string(),
-            color: z.string(),
-            textAlign: z.enum(["left", "center", "right"]),
-            fontWeight: z.enum(["normal", "bold"]),
-          }).optional(),
-          uploadProgress: z.number().int().min(0).max(100).optional(),
-          uploadStatus: uploadStatusEnum.optional(),
-        }),
+        data: insertMediaAssetSchema.partial()
       })
     )
     .mutation(async ({ input }) => {

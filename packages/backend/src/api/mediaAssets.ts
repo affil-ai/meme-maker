@@ -1,9 +1,16 @@
 import { db } from "../db";
-import { mediaAssets, type NewMediaAsset, type MediaAsset } from "../db/schema";
+import { mediaAssets, mediaTypeEnum as dbMediaTypeEnum, type MediaAsset } from "../db/schema";
 import { eq, and } from "drizzle-orm";
+import { z } from "zod/v4";
+import { createInsertSchema } from "drizzle-zod";
+
+export const insertMediaAssetSchema = createInsertSchema(mediaAssets);
+export type InsertMediaAsset = z.infer<typeof insertMediaAssetSchema>;
+export const mediaTypeEnum = z.enum(dbMediaTypeEnum.enumValues);
+
 
 // Create a new media asset
-export async function createMediaAsset(data: Omit<NewMediaAsset, "id" | "createdAt">) {
+export async function createMediaAsset(data: InsertMediaAsset) {
   const [asset] = await db.insert(mediaAssets).values(data).returning();
   return asset;
 }

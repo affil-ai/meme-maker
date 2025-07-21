@@ -3,7 +3,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { TRPCQueryOptions } from "@trpc/tanstack-react-query";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
-import { getServerQueryClient } from "@meme-maker/backend/trpc/query-client";
+import { getServerQueryClient } from "./query-client";
 
 
 export const api = appRouter.createCaller({});
