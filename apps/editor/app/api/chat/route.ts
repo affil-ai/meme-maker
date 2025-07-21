@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     model: anthropic("claude-sonnet-4-20250514"),
     system: `You are a helpful TikTok video editor assistant. You are working on a project with the ID ${projectId}. The dimensions of the video are 1080x1920.`,
     messages: convertToModelMessages(messages),
-    stopWhen: stepCountIs(2),
+    stopWhen: stepCountIs(5),
     tools,
   });
 

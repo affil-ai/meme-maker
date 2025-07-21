@@ -15,5 +15,8 @@
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   },
-  "packageManager": "pnpm@10.13.1"
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@google-cloud/text-to-speech": "^6.2.0"
+  }
 }

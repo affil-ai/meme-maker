@@ -1,8 +1,9 @@
 import { z } from "zod/v4";
 import { tool, ToolSet } from "ai";
 import { api } from "@meme-maker/backend";
+import textToSpeech from "@google-cloud/text-to-speech";
 import type { Id } from "@meme-maker/backend/convex/_generated/dataModel";
-import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { fetchAction, fetchMutation, fetchQuery } from "convex/nextjs";
 const keyframeSchema = z.object({
   time: z.number(),
   properties: z.object({
@@ -199,6 +200,108 @@ export const tools: ToolSet = {
       }
       await fetchMutation(api.timelineClips.remove, { clipId: id });
       return `Clip ${id} deleted`;
+    },
+  }),
+
+  createAudioMediaAsset: tool({
+    description: "Creates an audio media asset from a text input",
+    inputSchema: z.object({
+      projectId: z.string(),
+      text: z.string(),
+    }),
+    execute: async ({ projectId, text }) => {
+      const projectIdTyped = projectId as Id<"projects">;
+      
+      // Generate audio using Google Text-to-Speech
+      const client = new textToSpeech.TextToSpeechClient();
+      const [response] = await client.synthesizeSpeech({
+        input: { text },
+        voice: { languageCode: "en-US", name: "en-US-Chirp3-HD-Algenib", ssmlGender: "MALE" },
+        audioConfig: {
+          audioEncoding: "MP3",
+          speakingRate: 1.1,
+        },
+      });
+      
+      const audioContent = response.audioContent;
+      if (!audioContent || !(audioContent instanceof Uint8Array) || !(audioContent instanceof Buffer)) {
+        return "Failed to generate audio from text";
+      }
+      
+      // Convert audio buffer to Blob
+      const audioBlob = new Blob([audioContent.buffer], { type: "audio/mp3" });
+      const audioFile = new File([audioBlob], `tts-${Date.now()}.mp3`, { type: "audio/mp3" });
+      
+      // Get audio duration
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      const duration = await new Promise<number>((resolve) => {
+        audio.addEventListener("loadedmetadata", () => {
+          resolve(audio.duration);
+          URL.revokeObjectURL(audioUrl);
+        });
+        audio.addEventListener("error", () => {
+          URL.revokeObjectURL(audioUrl);
+          resolve(5); // Default 5 seconds on error
+        });
+      });
+      
+      // Create media asset record in database
+      const assetId = await fetchMutation(api.mediaAssets.create, {
+        projectId: projectIdTyped,
+        mediaType: "audio",
+        name: `TTS: ${text.substring(0, 50)}${text.length > 50 ? "..." : ""}`,
+        duration,
+        width: 0,
+        height: 0,
+      });
+      
+      // Generate upload URL and upload the audio file
+      const uploadUrl = await fetchMutation(api.mediaAssets.generateUploadUrl);
+      
+      // Upload using XMLHttpRequest for progress tracking
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            // Update progress in database
+            fetchMutation(api.mediaAssets.update, {
+              assetId,
+              uploadProgress: progress,
+              uploadStatus: progress === 100 ? "processing" : "uploading",
+            });
+          }
+        });
+        
+        xhr.addEventListener("load", async () => {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            const storageId = response.storageId;
+            
+            // Complete the upload
+            await fetchAction(api.fileStorage.completeUpload, { 
+              storageId, 
+              assetId 
+            });
+            
+            resolve();
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
+        
+        xhr.addEventListener("error", () => {
+          reject(new Error("Upload failed"));
+        });
+        
+        xhr.open("POST", uploadUrl);
+        xhr.send(audioFile);
+      });
+      
+      return `Audio media asset created with ID: ${assetId}`;
     },
   }),
 };
