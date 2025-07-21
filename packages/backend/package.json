@@ -4,15 +4,40 @@
   "private": true,
   "main": "./convex/_generated/api.js",
   "types": "./convex/_generated/api.d.ts",
+  "exports": {
+    "./trpc": "./src/trpc/index.ts",
+    "./trpc/root": "./src/trpc/root.ts",
+    "./trpc/query-client": "./src/trpc/query-client.ts",
+    "./trpc/utils": "./src/trpc/utils.ts"
+  },
   "scripts": {
     "deploy": "convex deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "convex": "^1.25.2"
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@supabase/supabase-js": "^2.52.0",
+    "@tanstack/react-query": "^5.83.0",
+    "@trpc/client": "^11.4.3",
+    "@trpc/server": "^11.4.3",
+    "@trpc/tanstack-react-query": "^11.4.3",
+    "@uploadthing/react": "^7.3.2",
+    "convex": "^1.25.2",
+    "drizzle-orm": "^0.44.3",
+    "drizzle-zod": "^0.8.2",
+    "postgres": "^3.4.7",
+    "react": "^19.1.0",
+    "superjson": "^2.2.2",
+    "uploadthing": "^7.7.3",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "drizzle-kit": "^0.31.4",
     "typescript": "^5.8.3"
   }
 }
