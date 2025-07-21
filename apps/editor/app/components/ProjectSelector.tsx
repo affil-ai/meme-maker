@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@meme-maker/backend";
-import type { Id } from "@meme-maker/backend/convex/_generated/dataModel";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "~/trpc/react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
@@ -12,13 +11,21 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
 interface ProjectSelectorProps {
-  onSelectProject: (projectId: Id<"projects">) => void;
+  onSelectProject: (projectId: string) => void;
 }
 
 export function ProjectSelector({ onSelectProject }: ProjectSelectorProps) {
-  const projects = useQuery(api.projects.list);
-  const createProject = useMutation(api.projects.create);
-  const deleteProject = useMutation(api.projects.remove);
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { data: projects } = useQuery(trpc.projects.list.queryOptions());
+
+  const createProject = useMutation(trpc.projects.create.mutationOptions({
+    onSuccess: (data) => {
+      onSelectProject(data.id);
+      queryClient.invalidateQueries(trpc.projects.list.queryOptions());
+    }
+  }));
+  const deleteProject = useMutation(trpc.projects.delete.mutationOptions());
   
   const [isCreating, setIsCreating] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -32,7 +39,7 @@ export function ProjectSelector({ onSelectProject }: ProjectSelectorProps) {
     
     setIsCreating(true);
     try {
-      const projectId = await createProject({
+      const newProject = await createProject.mutateAsync({
         name: newProjectName,
         description: newProjectDescription || undefined,
         settings: {
@@ -48,7 +55,7 @@ export function ProjectSelector({ onSelectProject }: ProjectSelectorProps) {
       toast.success("Project created successfully");
       setNewProjectName("");
       setNewProjectDescription("");
-      onSelectProject(projectId);
+      onSelectProject(newProject.id);
     } catch (error) {
       toast.error("Failed to create project");
       console.error(error);
@@ -63,7 +70,7 @@ export function ProjectSelector({ onSelectProject }: ProjectSelectorProps) {
     }
     
     try {
-      await deleteProject({ projectId });
+      await deleteProject.mutateAsync({ id: projectId });
       toast.success("Project deleted successfully");
     } catch (error) {
       toast.error("Failed to delete project");

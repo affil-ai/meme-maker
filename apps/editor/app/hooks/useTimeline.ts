@@ -1,8 +1,6 @@
 import { useCallback, useState, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { useSingleFlight } from "./useSingleFlight";
-import { api } from "@meme-maker/backend";
-import type { Id } from "@meme-maker/backend/convex/_generated/dataModel";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useTRPC } from "~/trpc/react";
 import { useProject } from "~/contexts/ProjectContext";
 import {
   PIXELS_PER_SECOND,
@@ -28,7 +26,7 @@ export const useTimeline = () => {
   
   // Convex queries
   const timelineData = useQuery(
-    api.timeline.getTimelineData,
+    trpc..timeline.getTimelineData,
     projectId ? { projectId } : "skip"
   );
   const trackCount = useQuery(

@@ -1,12 +1,12 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { Id, Doc } from "@meme-maker/backend/convex/_generated/dataModel";
-
+import { AppRouterOutputs } from "@meme-maker/backend/trpc";
+type Project = AppRouterOutputs["projects"]["get"];
 interface ProjectContextType {
-  projectId: Id<"projects"> | null;
-  project: Doc<"projects"> | null;
-  setProjectId: (id: Id<"projects"> | null) => void;
+  projectId: string | null;
+  project: Project | null;
+  setProjectId: (id: string | null) => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -21,9 +21,9 @@ export function useProject() {
 
 interface ProjectProviderProps {
   children: ReactNode;
-  projectId: Id<"projects"> | null;
-  project: Doc<"projects"> | null;
-  setProjectId: (id: Id<"projects"> | null) => void;
+  projectId: string | null;
+  project: Project | null;
+  setProjectId: (id: string | null) => void;
 }
 
 export function ProjectProvider({ children, projectId, project, setProjectId }: ProjectProviderProps) {
