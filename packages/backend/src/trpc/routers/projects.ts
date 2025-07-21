@@ -7,27 +7,12 @@ import {
   updateProject,
   deleteProject,
   searchProjects,
-} from "~/api/projects";
+  insertProjectSchema,
+} from "../../api/projects";
 
 export const projectsRouter = createTRPCRouter({
   create: publicProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        description: z.string().optional(),
-        createdBy: z.string().uuid().optional(),
-        thumbnail: z.string().optional(),
-        settings: z.object({
-          fps: z.number(),
-          resolution: z.object({
-            width: z.number(),
-            height: z.number(),
-          }),
-          duration: z.number(),
-        }),
-        isPublic: z.boolean().default(false),
-      })
-    )
+    .input(insertProjectSchema)
     .mutation(async ({ input }) => {
       return await createProject(input);
     }),
@@ -56,21 +41,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().uuid(),
-        data: z.object({
-          name: z.string().optional(),
-          description: z.string().optional(),
-          createdBy: z.string().uuid().optional(),
-          thumbnail: z.string().optional(),
-          settings: z.object({
-            fps: z.number(),
-            resolution: z.object({
-              width: z.number(),
-              height: z.number(),
-            }),
-            duration: z.number(),
-          }).optional(),
-          isPublic: z.boolean().optional(),
-        }),
+        data: insertProjectSchema.partial(),
       })
     )
     .mutation(async ({ input }) => {

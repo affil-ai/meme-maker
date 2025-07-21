@@ -10,28 +10,12 @@ import {
   deleteTimelineClip,
   batchUpdateClips,
   splitClip,
-} from "~/api/timelineClips";
+  insertTimelineClipSchema,
+} from "../../api/timelineClips";
 
 export const timelineClipsRouter = createTRPCRouter({
   create: publicProcedure
-    .input(
-      z.object({
-        projectId: z.string().uuid(),
-        mediaAssetId: z.string().uuid(),
-        trackIndex: z.number().int(),
-        startTime: z.number(),
-        duration: z.number(),
-        trimStart: z.number().optional(),
-        trimEnd: z.number().optional(),
-        position: z.object({ x: z.number(), y: z.number() }),
-        size: z.object({ width: z.number(), height: z.number() }),
-        rotation: z.number().default(0),
-        opacity: z.number().min(0).max(1).default(1),
-        scale: z.number().default(1),
-        playbackSpeed: z.number().min(0.25).max(4).default(1),
-        zIndex: z.number().int(),
-      })
-    )
+    .input(insertTimelineClipSchema)
     .mutation(async ({ input }) => {
       return await createTimelineClip(input);
     }),
@@ -79,20 +63,7 @@ export const timelineClipsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().uuid(),
-        data: z.object({
-          trackIndex: z.number().int().optional(),
-          startTime: z.number().optional(),
-          duration: z.number().optional(),
-          trimStart: z.number().optional(),
-          trimEnd: z.number().optional(),
-          position: z.object({ x: z.number(), y: z.number() }).optional(),
-          size: z.object({ width: z.number(), height: z.number() }).optional(),
-          rotation: z.number().optional(),
-          opacity: z.number().min(0).max(1).optional(),
-          scale: z.number().optional(),
-          playbackSpeed: z.number().min(0.25).max(4).optional(),
-          zIndex: z.number().int().optional(),
-        }),
+        data: insertTimelineClipSchema.partial(),
       })
     )
     .mutation(async ({ input }) => {
@@ -111,20 +82,7 @@ export const timelineClipsRouter = createTRPCRouter({
       z.array(
         z.object({
           id: z.string().uuid(),
-          data: z.object({
-            trackIndex: z.number().int().optional(),
-            startTime: z.number().optional(),
-            duration: z.number().optional(),
-            trimStart: z.number().optional(),
-            trimEnd: z.number().optional(),
-            position: z.object({ x: z.number(), y: z.number() }).optional(),
-            size: z.object({ width: z.number(), height: z.number() }).optional(),
-            rotation: z.number().optional(),
-            opacity: z.number().min(0).max(1).optional(),
-            scale: z.number().optional(),
-            playbackSpeed: z.number().min(0.25).max(4).optional(),
-            zIndex: z.number().int().optional(),
-          }),
+          data: insertTimelineClipSchema.partial(),
         })
       )
     )

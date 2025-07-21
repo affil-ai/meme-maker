@@ -1,14 +1,15 @@
 import { db } from "../db";
-import { projects, type NewProject, type Project } from "../db/schema";
+import { projects, type Project } from "../db/schema";
 import { eq, desc } from "drizzle-orm";
+import { z } from "zod/v4";
+import { createInsertSchema } from "drizzle-zod";
+
+export const insertProjectSchema = createInsertSchema(projects);
+export type InsertProject = z.infer<typeof insertProjectSchema>;
 
 // Create a new project
-export async function createProject(data: Omit<NewProject, "id" | "createdAt" | "lastModified">) {
-  const [project] = await db.insert(projects).values({
-    ...data,
-    lastModified: new Date(),
-  }).returning();
-  
+export async function createProject(data: InsertProject) {
+  const [project] = await db.insert(projects).values(data).returning();
   return project;
 }
 
@@ -35,10 +36,7 @@ export async function getProject(id: string) {
 export async function updateProject(id: string, data: Partial<Omit<Project, "id" | "createdAt">>) {
   const [updated] = await db
     .update(projects)
-    .set({
-      ...data,
-      lastModified: new Date(),
-    })
+    .set(data)
     .where(eq(projects.id, id))
     .returning();
   

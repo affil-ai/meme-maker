@@ -1,9 +1,14 @@
 import { db } from "../db";
-import { timelineClips, type NewTimelineClip, type TimelineClip } from "../db/schema";
+import { timelineClips, type TimelineClip } from "../db/schema";
 import { eq, and, gte, lte, asc } from "drizzle-orm";
+import { z } from "zod/v4";
+import { createInsertSchema } from "drizzle-zod";
+
+export const insertTimelineClipSchema = createInsertSchema(timelineClips);
+export type InsertTimelineClip = z.infer<typeof insertTimelineClipSchema>;
 
 // Create a new timeline clip
-export async function createTimelineClip(data: Omit<NewTimelineClip, "id" | "createdAt">) {
+export async function createTimelineClip(data: InsertTimelineClip) {
   const [clip] = await db.insert(timelineClips).values(data).returning();
   return clip;
 }
