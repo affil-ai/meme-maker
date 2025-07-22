@@ -26,6 +26,8 @@ export const create = mutation({
       rotation: v.optional(v.number()),
       opacity: v.optional(v.number()),
       scale: v.optional(v.number()),
+      flipX: v.optional(v.boolean()),
+      flipY: v.optional(v.boolean()),
     }),
     easing: v.optional(v.union(
       v.literal("linear"),
@@ -66,6 +68,8 @@ export const update = mutation({
       rotation: v.optional(v.number()),
       opacity: v.optional(v.number()),
       scale: v.optional(v.number()),
+      flipX: v.optional(v.boolean()),
+      flipY: v.optional(v.boolean()),
     })),
     easing: v.optional(v.union(
       v.literal("linear"),
@@ -127,6 +131,8 @@ export const batchUpsert = mutation({
         rotation: v.optional(v.number()),
         opacity: v.optional(v.number()),
         scale: v.optional(v.number()),
+        flipX: v.optional(v.boolean()),
+        flipY: v.optional(v.boolean()),
       }),
       easing: v.optional(v.union(
         v.literal("linear"),

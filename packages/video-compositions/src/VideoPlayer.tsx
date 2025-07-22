@@ -38,6 +38,8 @@ interface AnimatedScrubber {
   width_player: number;
   height_player: number;
   rotation?: number;
+  flipX?: boolean;
+  flipY?: boolean;
   keyframes?: Array<{
     time: number;
     properties: {
@@ -48,6 +50,8 @@ interface AnimatedScrubber {
       rotation?: number;
       opacity?: number;
       scale?: number;
+      flipX?: boolean;
+      flipY?: boolean;
     };
   }>;
 }
@@ -82,6 +86,8 @@ const AnimatedMediaItem: React.FC<{
     rotation: scrubber.rotation || 0,
     opacity: 1,
     scale: 1,
+    flipX: scrubber.flipX || false,
+    flipY: scrubber.flipY || false,
   };
   
   // If no keyframes, use base properties
@@ -94,7 +100,7 @@ const AnimatedMediaItem: React.FC<{
           top: baseProperties.y,
           width: baseProperties.width,
           height: baseProperties.height,
-          transform: `rotate(${baseProperties.rotation}deg) scale(${baseProperties.scale})`,
+          transform: `rotate(${baseProperties.rotation}deg) scale(${baseProperties.scale}) scaleX(${baseProperties.flipX ? -1 : 1}) scaleY(${baseProperties.flipY ? -1 : 1})`,
           opacity: baseProperties.opacity,
         }}
       >
@@ -126,7 +132,7 @@ const AnimatedMediaItem: React.FC<{
           top: kf.properties.y ?? baseProperties.y,
           width: kf.properties.width ?? baseProperties.width,
           height: kf.properties.height ?? baseProperties.height,
-          transform: `rotate(${kf.properties.rotation ?? baseProperties.rotation}deg) scale(${kf.properties.scale ?? baseProperties.scale})`,
+          transform: `rotate(${kf.properties.rotation ?? baseProperties.rotation}deg) scale(${kf.properties.scale ?? baseProperties.scale}) scaleX(${(kf.properties.flipX ?? baseProperties.flipX) ? -1 : 1}) scaleY(${(kf.properties.flipY ?? baseProperties.flipY) ? -1 : 1})`,
           opacity: kf.properties.opacity ?? baseProperties.opacity,
         }}
       >
@@ -195,6 +201,20 @@ const AnimatedMediaItem: React.FC<{
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
   
+  const animatedFlipX = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => (kf.properties.flipX ?? baseProperties.flipX) ? 1 : 0),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
+  const animatedFlipY = interpolate(
+    frame,
+    frameRanges,
+    sortedKeyframes.map((kf) => (kf.properties.flipY ?? baseProperties.flipY) ? 1 : 0),
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+  
   console.log('🎨 Animated values:', {
     frame,
     x: animatedX,
@@ -204,6 +224,8 @@ const AnimatedMediaItem: React.FC<{
     rotation: animatedRotation,
     opacity: animatedOpacity,
     scale: animatedScale,
+    flipX: animatedFlipX > 0.5,
+    flipY: animatedFlipY > 0.5,
   });
   
   return (
@@ -213,7 +235,7 @@ const AnimatedMediaItem: React.FC<{
         top: animatedY,
         width: animatedWidth,
         height: animatedHeight,
-        transform: `rotate(${animatedRotation}deg) scale(${animatedScale})`,
+        transform: `rotate(${animatedRotation}deg) scale(${animatedScale}) scaleX(${animatedFlipX > 0.5 ? -1 : 1}) scaleY(${animatedFlipY > 0.5 ? -1 : 1})`,
         opacity: animatedOpacity,
       }}
     >

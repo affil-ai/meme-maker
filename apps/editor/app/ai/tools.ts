@@ -209,7 +209,7 @@ export const tools: ToolSet = {
     inputSchema: z.object({
       projectId: z.string(),
       text: z.string(),
-      speakingRate: z.number().default(1.0).describe("The speaking rate of the audio. 1.2 is the default rate. The higher the number, the faster the audio will be spoken."),
+      speakingRate: z.number().default(1.1).describe("The speaking rate of the audio. 1.1 is the default rate. The higher the number, the faster the audio will be spoken."),
     }),
     execute: async ({ projectId, text, speakingRate }) => {
       const projectIdTyped = projectId as Id<"projects">;

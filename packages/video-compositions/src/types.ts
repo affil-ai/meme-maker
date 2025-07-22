@@ -47,6 +47,8 @@ export interface ScrubberState extends MediaBinItem {
 
   // Transform properties
   rotation?: number; // rotation in degrees
+  flipX?: boolean; // horizontal flip
+  flipY?: boolean; // vertical flip
   
   // Playback properties
   playbackSpeed?: number; // playback speed multiplier (0.25 to 4)
@@ -94,6 +96,8 @@ export interface TimelineDataItem {
 
     // Transform properties
     rotation?: number; // rotation in degrees
+    flipX?: boolean; // horizontal flip
+    flipY?: boolean; // vertical flip
     
     // Playback properties
     playbackSpeed?: number; // playback speed multiplier (0.25 to 4)
@@ -126,6 +130,8 @@ export interface AnimatableProperties {
   rotation?: number;
   opacity?: number;
   scale?: number;
+  flipX?: boolean;
+  flipY?: boolean;
 }
 
 export interface KeyframeAnimation {

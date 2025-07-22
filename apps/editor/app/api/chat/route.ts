@@ -1,6 +1,7 @@
 export const runtime = 'nodejs';
 
 import { anthropic } from '@ai-sdk/anthropic';
+import { openai } from '@ai-sdk/openai';
 import {
   type InferUITools,
   type UIDataTypes,
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: ChatMessage[] } = await req.json();
 
   const result = streamText({
-    model: anthropic("claude-sonnet-4-20250514"),
+    model: openai("o4-mini"),
     system: `You are a helpful TikTok video editor assistant. You are working on a project with the ID ${projectId}. The dimensions of the video are 1080x1920.`,
     messages: convertToModelMessages(messages),
     stopWhen: stepCountIs(5),

@@ -4,6 +4,7 @@ import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
+import { Switch } from '~/components/ui/switch';
 import { type ScrubberState, type Keyframe, type AnimatableProperties } from "@meme-maker/video-compositions";
 import { useMutation } from 'convex/react';
 import { api } from '@meme-maker/backend';
@@ -44,6 +45,8 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
       rotation: selectedScrubber.rotation || 0,
       opacity: 1,
       scale: 1,
+      flipX: false,
+      flipY: false,
     };
     
     try {
@@ -59,7 +62,7 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
     }
   };
 
-  const handlePropertyChange = async (keyframeId: string, property: keyof AnimatableProperties, value: number) => {
+  const handlePropertyChange = async (keyframeId: string, property: keyof AnimatableProperties, value: number | boolean) => {
     const keyframe = selectedScrubber.keyframes?.find(kf => kf.id === keyframeId);
     if (!keyframe) return;
     
@@ -182,6 +185,20 @@ export default function KeyframeEditor({ selectedScrubber, pixelsPerSecond }: Ke
                     step="0.1"
                     onChange={(e) => handlePropertyChange(keyframe.id, 'opacity', parseFloat(e.target.value) || 1)}
                     className="h-8"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs">Flip X</Label>
+                  <Switch
+                    checked={keyframe.properties.flipX || false}
+                    onCheckedChange={(checked) => handlePropertyChange(keyframe.id, 'flipX', checked)}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs">Flip Y</Label>
+                  <Switch
+                    checked={keyframe.properties.flipY || false}
+                    onCheckedChange={(checked) => handlePropertyChange(keyframe.id, 'flipY', checked)}
                   />
                 </div>
               </div>

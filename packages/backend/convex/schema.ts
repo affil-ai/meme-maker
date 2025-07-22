@@ -89,6 +89,8 @@ export default defineSchema({
       height: v.number(),
     }),
     rotation: v.optional(v.number()), // Rotation in degrees
+    flipX: v.optional(v.boolean()), // Horizontal flip
+    flipY: v.optional(v.boolean()), // Vertical flip
     opacity: v.optional(v.number()), // 0-1
     scale: v.optional(v.number()), // Scale factor
     
@@ -116,6 +118,8 @@ export default defineSchema({
       rotation: v.optional(v.number()),
       opacity: v.optional(v.number()),
       scale: v.optional(v.number()),
+      flipX: v.optional(v.boolean()),
+      flipY: v.optional(v.boolean()),
     }),
     
     // Easing function
@@ -216,6 +220,8 @@ export default defineSchema({
           rotation: v.optional(v.number()),
           opacity: v.optional(v.number()),
           scale: v.optional(v.number()),
+          flipX: v.optional(v.boolean()),
+          flipY: v.optional(v.boolean()),
         }),
         easing: v.optional(v.union(
           v.literal("linear"),

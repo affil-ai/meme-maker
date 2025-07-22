@@ -11,6 +11,7 @@ import {
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
 import { Slider } from "~/components/ui/slider";
+import { Switch } from "~/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import { MessageSquare, Settings2 } from "lucide-react";
 import {
@@ -239,6 +240,32 @@ export default function RightPanel({
                 placeholder="0"
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="flip-x" className="text-sm font-medium">
+                  Flip X
+                </Label>
+                <Switch
+                  id="flip-x"
+                  checked={selectedScrubber.flipX || false}
+                  onCheckedChange={(checked) =>
+                    handleCommonPropertyChange("flipX", checked)
+                  }
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="flip-y" className="text-sm font-medium">
+                  Flip Y
+                </Label>
+                <Switch
+                  id="flip-y"
+                  checked={selectedScrubber.flipY || false}
+                  onCheckedChange={(checked) =>
+                    handleCommonPropertyChange("flipY", checked)
+                  }
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -384,7 +411,7 @@ export default function RightPanel({
 
   const handleCommonPropertyChange = (
     property: string,
-    value: string | number
+    value: string | number | boolean
   ) => {
     if (!selectedScrubber) return;
     onUpdateScrubber(selectedScrubber.id, { [property]: value });

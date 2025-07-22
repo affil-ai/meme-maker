@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "2.0.0-beta.6",
+    "@ai-sdk/openai": "2.0.0-beta.11",
     "@ai-sdk/react": "2.0.0-beta.21",
     "@meme-maker/backend": "workspace:*",
     "@meme-maker/video-compositions": "workspace:*",
