@@ -8,7 +8,7 @@
  * @module
  */
 
-import type * as commandHistory from "../commandHistory.js";
+import type * as checkpoints from "../checkpoints.js";
 import type * as fileStorage from "../fileStorage.js";
 import type * as keyframes from "../keyframes.js";
 import type * as mediaAssets from "../mediaAssets.js";
@@ -33,7 +33,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  commandHistory: typeof commandHistory;
+  checkpoints: typeof checkpoints;
   fileStorage: typeof fileStorage;
   keyframes: typeof keyframes;
   mediaAssets: typeof mediaAssets;

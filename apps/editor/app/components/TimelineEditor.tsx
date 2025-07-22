@@ -12,8 +12,9 @@ import {
   Minus,
   Scissors,
   FolderOpen,
-  Undo2,
-  Redo2,
+  Save,
+  RotateCcw,
+  Archive,
 } from "lucide-react";
 import { useProject } from "~/contexts/ProjectContext";
 
@@ -34,6 +35,23 @@ import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
@@ -45,7 +63,7 @@ import { useTimeline } from "~/hooks/useTimeline";
 import { useMediaBin } from "~/hooks/useMediaBin";
 import { useRuler } from "~/hooks/useRuler";
 import { useRenderer } from "~/hooks/useRenderer";
-import { useUndoRedo } from "~/hooks/useUndoRedo";
+import { useCheckpoint } from "~/hooks/useCheckpoint";
 
 // Types and constants
 import { VideoPlayer, FPS, type ScrubberState } from "@meme-maker/video-compositions";
@@ -124,7 +142,10 @@ export default function TimelineEditor() {
 
   const { isRendering, renderStatus, handleRenderVideo } = useRenderer();
   
-  const { canUndo, canRedo, handleUndo, handleRedo } = useUndoRedo();
+  const { checkpoints, createCheckpoint, restoreCheckpoint, isCreating, isRestoring } = useCheckpoint();
+  const [showCheckpointDialog, setShowCheckpointDialog] = useState(false);
+  const [checkpointName, setCheckpointName] = useState("");
+  const [checkpointDescription, setCheckpointDescription] = useState("");
 
   // Derived values
   const timelineData = getTimelineData();
@@ -611,26 +632,116 @@ export default function TimelineEditor() {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleUndo}
-                      disabled={!canUndo}
-                      className="h-6 px-2 text-xs"
-                      title="Undo (Cmd/Ctrl+Z)"
-                    >
-                      <Undo2 className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRedo}
-                      disabled={!canRedo}
-                      className="h-6 px-2 text-xs"
-                      title="Redo (Cmd/Ctrl+Y)"
-                    >
-                      <Redo2 className="h-3 w-3" />
-                    </Button>
+                    <Dialog open={showCheckpointDialog} onOpenChange={setShowCheckpointDialog}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isCreating}
+                          className="h-6 px-2 text-xs"
+                          title="Save Checkpoint"
+                        >
+                          <Save className="h-3 w-3" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Save Checkpoint</DialogTitle>
+                          <DialogDescription>
+                            Save the current state of your timeline to return to it later.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="checkpoint-name">Name</Label>
+                            <Input
+                              id="checkpoint-name"
+                              value={checkpointName}
+                              onChange={(e) => setCheckpointName(e.target.value)}
+                              placeholder="e.g., Before adding effects"
+                            />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="checkpoint-description">Description (optional)</Label>
+                            <Input
+                              id="checkpoint-description"
+                              value={checkpointDescription}
+                              onChange={(e) => setCheckpointDescription(e.target.value)}
+                              placeholder="Additional notes about this checkpoint"
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowCheckpointDialog(false);
+                              setCheckpointName("");
+                              setCheckpointDescription("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={async () => {
+                              if (checkpointName.trim()) {
+                                await createCheckpoint(checkpointName, checkpointDescription);
+                                setShowCheckpointDialog(false);
+                                setCheckpointName("");
+                                setCheckpointDescription("");
+                              } else {
+                                toast.error("Please enter a checkpoint name");
+                              }
+                            }}
+                            disabled={isCreating || !checkpointName.trim()}
+                          >
+                            Save Checkpoint
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isRestoring || checkpoints.length === 0}
+                          className="h-6 px-2 text-xs"
+                          title="Restore Checkpoint"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Restore Checkpoint</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {checkpoints.length === 0 ? (
+                          <DropdownMenuItem disabled>
+                            No checkpoints saved
+                          </DropdownMenuItem>
+                        ) : (
+                          checkpoints.map((checkpoint) => (
+                            <DropdownMenuItem
+                              key={checkpoint._id}
+                              onClick={() => restoreCheckpoint(checkpoint._id)}
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium">{checkpoint.name}</span>
+                                {checkpoint.description && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {checkpoint.description}
+                                  </span>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(checkpoint.createdAt).toLocaleString()}
+                                </span>
+                              </div>
+                            </DropdownMenuItem>
+                          ))
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <Separator orientation="vertical" className="h-4 mx-1" />
                     <div className="flex items-center">
                       <Button

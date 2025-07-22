@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { internal } from "./_generated/api";
 import type { MediaAssetWithUrl } from "./types";
 
 
@@ -98,18 +97,6 @@ export const createClipFromDrop = mutation({
       playbackSpeed: 1,
     });
     
-    // Get the created clip for redo data
-    const createdClip = await ctx.db.get(clipId);
-    
-    // Record command for undo/redo
-    await ctx.runMutation(internal.commandHistory.recordCommand, {
-      projectId: args.projectId,
-      type: "createClip",
-      description: `Added ${mediaAsset.name} to timeline`,
-      undoData: { clipId },
-      redoData: { clipData: createdClip },
-    });
-    
     // Update project last modified
     await ctx.db.patch(args.projectId, {
       lastModified: Date.now(),
@@ -180,27 +167,6 @@ export const splitClip = mutation({
       }
     }
     
-    // Get the created clips for redo data
-    const [firstClip, secondClip] = await Promise.all([
-      ctx.db.get(firstClipId),
-      ctx.db.get(secondClipId),
-    ]);
-    
-    // Record command for undo/redo
-    await ctx.runMutation(internal.commandHistory.recordCommand, {
-      projectId: originalClip.projectId,
-      type: "splitClip",
-      description: `Split clip at ${args.splitTime.toFixed(2)}s`,
-      undoData: {
-        newClipIds: [firstClipId, secondClipId],
-        originalClip,
-      },
-      redoData: {
-        originalClipId: args.clipId,
-        newClips: [firstClip, secondClip],
-      },
-    });
-    
     // Delete original clip and its keyframes
     for (const keyframe of keyframes) {
       await ctx.db.delete(keyframe._id);
@@ -243,30 +209,9 @@ export const moveClipToTrack = mutation({
     const clip = await ctx.db.get(args.clipId);
     if (!clip) throw new Error("Clip not found");
     
-    // Store previous state for undo
-    const previousData = {
-      trackIndex: clip.trackIndex,
-      startTime: clip.startTime,
-    };
-    
     await ctx.db.patch(args.clipId, {
       trackIndex: args.newTrackIndex,
       startTime: args.newStartTime,
-    });
-    
-    // Record command for undo/redo
-    await ctx.runMutation(internal.commandHistory.recordCommand, {
-      projectId: clip.projectId,
-      type: "updateClip",
-      description: `Moved clip to track ${args.newTrackIndex + 1}`,
-      undoData: { clipId: args.clipId, previousData },
-      redoData: {
-        clipId: args.clipId,
-        updateData: {
-          trackIndex: args.newTrackIndex,
-          startTime: args.newStartTime,
-        },
-      },
     });
     
     // Update project last modified

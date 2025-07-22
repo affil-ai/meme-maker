@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 
 // Get all timeline clips for a project
@@ -94,18 +93,6 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const clipId = await ctx.db.insert("timelineClips", args);
     
-    // Get the created clip for redo data
-    const createdClip = await ctx.db.get(clipId);
-    
-    // Record command for undo/redo
-    await ctx.runMutation(internal.commandHistory.recordCommand, {
-      projectId: args.projectId,
-      type: "createClip",
-      description: `Added clip to timeline`,
-      undoData: { clipId },
-      redoData: { clipData: createdClip },
-    });
-    
     // Update project's last modified time
     await ctx.db.patch(args.projectId, {
       lastModified: Date.now(),
@@ -143,22 +130,7 @@ export const update = mutation({
     const clip = await ctx.db.get(clipId);
     if (!clip) throw new Error("Clip not found");
     
-    // Store previous state for undo
-    const previousData: any = {};
-    for (const key in updateData) {
-      previousData[key] = (clip as any)[key];
-    }
-    
     await ctx.db.patch(clipId, updateData);
-    
-    // Record command for undo/redo
-    await ctx.runMutation(internal.commandHistory.recordCommand, {
-      projectId: clip.projectId,
-      type: "updateClip",
-      description: `Updated clip properties`,
-      undoData: { clipId, previousData },
-      redoData: { clipId, updateData },
-    });
     
     // Update project's last modified time
     await ctx.db.patch(clip.projectId, {
@@ -183,15 +155,6 @@ export const remove = mutation({
     for (const keyframe of keyframes) {
       await ctx.db.delete(keyframe._id);
     }
-    
-    // Record command for undo/redo before deletion
-    await ctx.runMutation(internal.commandHistory.recordCommand, {
-      projectId: clip.projectId,
-      type: "deleteClip",
-      description: `Deleted clip from timeline`,
-      undoData: { clipData: clip, keyframes },
-      redoData: { clipId: args.clipId },
-    });
     
     // Delete the clip
     await ctx.db.delete(args.clipId);

@@ -172,32 +172,60 @@ export default defineSchema({
   })
     .index("by_user", ["userId"]),
 
-  // Command history for undo/redo functionality
-  commandHistory: defineTable({
+  // Checkpoints for saving/restoring project states
+  checkpoints: defineTable({
     projectId: v.id("projects"),
-    timestamp: v.number(),
-    type: v.union(
-      v.literal("createClip"),
-      v.literal("updateClip"),
-      v.literal("deleteClip"),
-      v.literal("splitClip"),
-      v.literal("createKeyframe"),
-      v.literal("updateKeyframe"),
-      v.literal("deleteKeyframe"),
-      v.literal("createMediaAsset"),
-      v.literal("deleteMediaAsset")
-    ),
-    description: v.string(), // Human-readable description
+    name: v.string(),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
     
-    // Store the data needed to undo the command
-    undoData: v.any(), // Flexible storage for command-specific undo data
-    
-    // Store the data needed to redo the command
-    redoData: v.any(), // Flexible storage for command-specific redo data
-    
-    // Track if this command has been undone
-    isUndone: v.boolean(),
+    // Store the complete state of the timeline
+    state: v.object({
+      // Array of timeline clips with their properties
+      clips: v.array(v.object({
+        mediaAssetId: v.id("mediaAssets"),
+        trackIndex: v.number(),
+        startTime: v.number(),
+        duration: v.number(),
+        trimStart: v.optional(v.number()),
+        trimEnd: v.optional(v.number()),
+        position: v.object({
+          x: v.number(),
+          y: v.number(),
+        }),
+        size: v.object({
+          width: v.number(),
+          height: v.number(),
+        }),
+        rotation: v.optional(v.number()),
+        opacity: v.optional(v.number()),
+        scale: v.optional(v.number()),
+        playbackSpeed: v.optional(v.number()),
+        zIndex: v.number(),
+      })),
+      
+      // Array of keyframes for each clip
+      keyframes: v.array(v.object({
+        clipIndex: v.number(), // Index in the clips array
+        time: v.number(),
+        properties: v.object({
+          x: v.optional(v.number()),
+          y: v.optional(v.number()),
+          width: v.optional(v.number()),
+          height: v.optional(v.number()),
+          rotation: v.optional(v.number()),
+          opacity: v.optional(v.number()),
+          scale: v.optional(v.number()),
+        }),
+        easing: v.optional(v.union(
+          v.literal("linear"),
+          v.literal("ease-in"),
+          v.literal("ease-out"),
+          v.literal("ease-in-out")
+        )),
+      })),
+    }),
   })
-    .index("by_project_and_time", ["projectId", "timestamp"])
-    .index("by_project_undone_time", ["projectId", "isUndone", "timestamp"]),
+    .index("by_project", ["projectId"])
+    .index("by_project_created", ["projectId", "createdAt"]),
 });
