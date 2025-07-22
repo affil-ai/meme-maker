@@ -117,6 +117,7 @@ export default function ChatWindow() {
                         case "tool-editClip":
                         case "tool-getTimelineData":
                         case "tool-createKeyframe":
+                        case "tool-createAudioMediaAsset":
                           return (
                             <div
                               key={`${message.id}-editClip-${partIndex}`}

@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { anthropic } from '@ai-sdk/anthropic';
 import {
   type InferUITools,

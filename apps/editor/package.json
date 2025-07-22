@@ -65,6 +65,7 @@
     "eslint-config-next": "^15.3.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "music-metadata": "^11.7.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.4",
     "tailwindcss-animate": "^1.0.7",

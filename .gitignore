@@ -126,4 +126,6 @@ yarn-error.log*
 # Tailwind
 tailwind.config.js
 
-tmp
+tmp/
+
+node_modules

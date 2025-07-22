@@ -33,7 +33,7 @@ export const listAllNonText = query({
   handler: async (ctx) => {
     const assets = await ctx.db
       .query("mediaAssets")
-      .filter((q) => q.neq(q.field("mediaType"), "text"))
+      .filter((q) => q.eq(q.field("mediaType"), "image"))
       .collect();
     
     // Resolve storage URLs for assets that have storageId
@@ -58,7 +58,7 @@ export const listTextByProject = query({
     const assets = await ctx.db
       .query("mediaAssets")
       .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
-      .filter((q) => q.eq(q.field("mediaType"), "text"))
+      .filter((q) => q.neq(q.field("mediaType"), "image"))
       .collect();
     
     // Text assets don't have storageId, but add storageUrl: null for consistency
