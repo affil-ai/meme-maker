@@ -23,6 +23,7 @@ import {
 import { Send, Bot, User, Wrench, MessageSquare } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useProject } from "~/contexts/ProjectContext";
+import { Textarea } from "../ui/textarea";
 
 export default function ChatWindow() {
   const [input, setInput] = useState("");
@@ -156,7 +157,7 @@ export default function ChatWindow() {
           }}
           className="flex gap-2 w-full"
         >
-          <Input
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onCompositionStart={() => setIsComposing(true)}

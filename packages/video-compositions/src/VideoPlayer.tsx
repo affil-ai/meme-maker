@@ -329,7 +329,14 @@ export function TimelineComposition({
         }
         case "audio": {
           const audioUrl = scrubber.mediaUrl;
-          content = <Audio src={audioUrl!} />;
+          content = (
+            <Audio 
+              src={audioUrl!} 
+              startFrom={scrubber.trimBefore || 0}
+              endAt={scrubber.trimAfter ? scrubber.duration * FPS - scrubber.trimAfter : undefined}
+              playbackRate={scrubber.playbackSpeed || 1}
+            />
+          );
           break;
         }
         default:

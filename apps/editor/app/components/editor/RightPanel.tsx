@@ -165,6 +165,72 @@ export default function RightPanel({
           </CardContent>
         </Card>
 
+        {(selectedScrubber.mediaType === "video" ||
+          selectedScrubber.mediaType === "audio") && (
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Trim</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Trim Start</Label>
+                  <Input
+                    type="text"
+                    value={formatTime(
+                      (selectedScrubber.trimBefore || 0) / FPS
+                    )}
+                    onChange={(e) => {
+                      const newTime = parseTime(e.target.value);
+                      if (newTime !== null && newTime >= 0) {
+                        const newTrimBefore = Math.round(newTime * FPS);
+                        onUpdateScrubber(selectedScrubber.id, {
+                          trimBefore: newTrimBefore,
+                        });
+                      }
+                    }}
+                    placeholder="mm:ss.ms"
+                    title="Amount to trim from the beginning"
+                  />
+                </div>
+                <div>
+                  <Label>Trim End</Label>
+                  <Input
+                    type="text"
+                    value={formatTime(
+                      (selectedScrubber.trimAfter || 0) / FPS
+                    )}
+                    onChange={(e) => {
+                      const newTime = parseTime(e.target.value);
+                      if (newTime !== null && newTime >= 0) {
+                        const newTrimAfter = Math.round(newTime * FPS);
+                        onUpdateScrubber(selectedScrubber.id, {
+                          trimAfter: newTrimAfter,
+                        });
+                      }
+                    }}
+                    placeholder="mm:ss.ms"
+                    title="Amount to trim from the end"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Effective Duration</Label>
+                <Input
+                  type="text"
+                  value={formatTime(
+                    selectedScrubber.durationInSeconds -
+                      (selectedScrubber.trimBefore || 0) / FPS -
+                      (selectedScrubber.trimAfter || 0) / FPS
+                  )}
+                  disabled
+                  className="text-muted-foreground"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="mb-4">
           <CardHeader>
             <CardTitle>Transform</CardTitle>

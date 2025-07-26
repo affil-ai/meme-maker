@@ -15,7 +15,23 @@ const keyframeSchema = z.object({
     rotation: z.number(),
     opacity: z.number(),
     scale: z.number(),
+    flipX: z.boolean().default(false),
+    flipY: z.boolean().default(false),
   }),
+});
+
+const clipSchema = z.object({
+  startTime: z.number(),
+  duration: z.number(),
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+  }), 
+  size: z.object({
+    width: z.number(),
+    height: z.number(),
+  }),
+  trackIndex: z.number().optional(),
 });
 
 export const tools: ToolSet = {
@@ -23,14 +39,7 @@ export const tools: ToolSet = {
     description: "Edit a clip",
     inputSchema: z.object({
       clipId: z.string(),
-      edit: z.object({
-        startTime: z.number(),
-        duration: z.number(),
-        position: z.object({
-          x: z.number(),
-          y: z.number(),
-        }),
-      }),
+      edit: clipSchema,
     }),
     execute: async ({ clipId, edit }) => {
       const id = clipId as Id<"timelineClips">;
@@ -43,6 +52,8 @@ export const tools: ToolSet = {
         duration: edit.duration,
         startTime: edit.startTime,
         position: edit.position,
+        size: edit.size,
+        trackIndex: edit.trackIndex,
       });
       return `Clip ${id} updated`;
     },
@@ -69,7 +80,7 @@ export const tools: ToolSet = {
   }),
 
   createKeyframe: tool({
-    description: "Create a keyframe",
+    description: "Create a keyframe. Remember that keyframe times are relative to the clip's start time.",
     inputSchema: z.object({
       clipId: z.string(),
       keyframe: keyframeSchema,
@@ -90,7 +101,7 @@ export const tools: ToolSet = {
   }),
 
   updateKeyframe: tool({
-    description: "Update a keyframe",
+    description: "Update a keyframe. Remember that keyframe times are relative to the clip's start time.",
     inputSchema: z.object({
       keyframeId: z.string(),
       keyframe: keyframeSchema,
@@ -106,17 +117,17 @@ export const tools: ToolSet = {
     },
   }),
 
-  deleteKeyframe: tool({
-    description: "Delete a keyframe",
-    inputSchema: z.object({
-      keyframeId: z.string(),
-    }),
-    execute: async ({ keyframeId }) => {
-      const id = keyframeId as Id<"keyframes">;
-      await fetchMutation(api.keyframes.remove, { keyframeId: id });
-      return "Keyframe deleted";
-    },
-  }),
+  // deleteKeyframe: tool({
+  //   description: "Delete a keyframe",
+  //   inputSchema: z.object({
+  //     keyframeId: z.string(),
+  //   }),
+  //   execute: async ({ keyframeId }) => {
+  //     const id = keyframeId as Id<"keyframes">;
+  //     await fetchMutation(api.keyframes.remove, { keyframeId: id });
+  //     return "Keyframe deleted";
+  //   },
+  // }),
 
   fetchMediaAssets: tool({
     description: "Gets all the non text media assets and text media assets for the project",
@@ -144,14 +155,9 @@ export const tools: ToolSet = {
     inputSchema: z.object({
       projectId: z.string(),
       mediaAssetId: z.string(),
-      trackIndex: z.number().default(0),
-      startTime: z.number(),
-      position: z.object({
-        x: z.number().default(0),
-        y: z.number().default(0),
-      }).default({ x: 0, y: 0 }),
+      clip: clipSchema,
     }),
-    execute: async ({ projectId, mediaAssetId, trackIndex, startTime, position }) => {
+    execute: async ({ projectId, mediaAssetId, clip }) => {
       const projectIdTyped = projectId as Id<"projects">;
       const mediaAssetIdTyped = mediaAssetId as Id<"mediaAssets">;
       
@@ -163,7 +169,7 @@ export const tools: ToolSet = {
         return "Media asset not found";
       }
       
-      const size = {
+      const size = clip.size || {
         width: mediaAsset.width,
         height: mediaAsset.height,
       };
@@ -173,10 +179,10 @@ export const tools: ToolSet = {
       const clipId = await fetchMutation(api.timelineClips.create, {
         projectId: projectIdTyped,
         mediaAssetId: mediaAssetIdTyped,
-        trackIndex,
-        startTime,
-        duration,
-        position,
+        trackIndex: clip.trackIndex || 0,
+        startTime: clip.startTime,
+        duration: clip.duration,
+        position: clip.position,
         size,
         zIndex: 0,
         rotation: 0,
